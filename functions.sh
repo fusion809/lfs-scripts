@@ -410,7 +410,7 @@ function vimvercomp {
 
 function xmlparservercomp {
     EXIST="$1"
-    CURRENT=$(wget -cqO- http://cpan.metacpan.org/authors/id/T/TO/TODDR | grep "XML" | cut -d '"' -f 2 | tail -n 1 | cut -d '-' -f 3 | sed 's/\.tar\.gz//g')
+    CURRENT=$(wget -cqO- http://cpan.metacpan.org/authors/id/T/TO/TODDR | grep "XML" | cut -d '"' -f 2 | tail -n 1 | cut -d '-' -f 3 | sed 's/\.tar\.gz//g' | sed 's/_0[0-9]//g' )
 
     vercomp "XML-PARSER" $EXIST $CURRENT
 }

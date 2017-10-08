@@ -14,9 +14,9 @@ function gnuv {
 # Version of Savannah packages
 function savv {
     if [[ $1 == "man-db" ]]; then
-         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/\.src\.tar\.gz\.sig//g' | cut -d '-' -f 2 | tail -n 3 | head -n 2
+         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/\.src\.tar\.gz\.sig//g' | sed 's/\.tar\.bz2\.sig//g' | cut -d '-' -f 2 | tail -n 3 | head -n 2
     else
-         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/\.src\.tar\.gz\.sig//g' | cut -d '-' -f 2 | tail -n 2
+         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/\.src\.tar\.gz\.sig//g' | sed 's/\.tar\.bz2\.sig//g' | cut -d '-' -f 2 | tail -n 2
     fi
 }
 
@@ -27,7 +27,7 @@ function ver {
     ATTEMPT_L1=$(echo $1 | sed 's/ /\n/g' | head -n 1)
     ATTEMPT_L2=$(echo $1 | sed 's/ /\n/g' | tail -n 1)
 
-    if [[ $ATTEMPT_L1 == ${ATTEMPT_L2}.[0-9.pu]* ]]; then
+    if [[ $ATTEMPT_L1 == ${ATTEMPT_L2}.[0-9.]* ]]; then
          VERSION=${ATTEMPT_L1}
     else
          VERSION=${ATTEMPT_L2}
@@ -264,7 +264,7 @@ function linuxvercomp {
     vercomp "linux" $EXIST $CURRENT
 }
 
-function manpagevercomp {
+function manpagesvercomp {
     EXIST="$1"
     CURRENT=$(wget -cqO- https://www.kernel.org/pub/linux/docs/man-pages | grep "man-pages-[0-9.a-z]*.xz" | cut -d '"' -f 2 | cut -d '-' -f 3 | sed 's/\.tar[a-z.]*//g' | tail -n 1)
 
@@ -315,6 +315,92 @@ function procpsvercomp {
     vercomp "procps-ng" $EXIST $CURRENT
 }
 
+function psmiscvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://sourceforge.net/projects/psmisc/files/psmisc/ | grep "psmisc-[0-9.]*tar[a-z.]*" | head -n 1 | cut -d '"' -f 4 | cut -d '/' -f 3 | cut -d ':' -f 1 | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g')
+
+    vercomp "psmisc" $EXIST $CURRENT
+}
+
+function shadowvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://github.com/shadow-maint/shadow/releases | grep "shadow\-[0-9.]*\.tar\.gz" | cut -d '>' -f 2 | cut -d '<' -f 1 | cut -d '-' -f 2 | grep "tar" | sed 's/\.tar\.gz//g' | head -n 1)
+
+    vercomp "shadow" $EXIST $CURRENT
+}
+
+function sysklogdvercomp {
+    EXIST="$1"
+    CURRENT1=$(wget -cqO- http://www.infodrom.org/projects/sysklogd/download/ | grep "\.tar\.gz" | cut -d '"' -f 8 | sed 's/\.tar\.gz[a-z.]*//g' | uniq | tail -n 2 | cut -d '-' -f 2)
+
+    ATTEMPT_L1=$(echo $CURRENT1 | sed 's/ /\n/g' | head -n 1)
+    ATTEMPT_L2=$(echo $CURRENT1 | sed 's/ /\n/g' | tail -n 1)
+
+    if [[ $ATTEMPT_L1 == ${ATTEMPT_L2}.[0-9.]* ]]; then
+         CURRENT=${ATTEMPT_L1}
+    else
+         CURRENT=${ATTEMPT_L2}
+    fi
+
+    vercomp "sysklogd" $EXIST $CURRENT
+}
+
+function tclvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://sourceforge.net/projects/tcl/files/Tcl/ | grep "[0-9]\.[0-9]\.[0-9]" | grep "stats\/timeline" | head -n 1 | cut -d '/' -f 6)
+
+    vercomp "tcl-core" $EXIST $CURRENT
+}
+
+function tzdatavercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://www.iana.org/time-zones/ | grep "tzdata[0-9a-z.]*" | cut -d '/' -f 5 | cut -d '"' -f 1 | sed 's/\.tar\.gz//g' | sed 's/tzdata//g')
+
+    vercomp "tzdata" $EXIST $CURRENT
+}
+
+function udevlfsvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://anduin.linuxfromscratch.org/LFS | grep "udev-lfs" | cut -d '"' -f 2 | cut -d '-' -f 3 | sed 's/\.tar\.bz2//g')
+
+    vercomp "udev-lfs" $EXIST $CURRENT
+}
+
+function utillinuxvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.kernel.org/pub/linux/utils/util-linux/ | grep "v[0-9.]*" | cut -d '"' -f 2 | sed 's/\///g' | sed 's/v//g' | tail -n 1)
+
+    vercomp "util-linux" $EXIST $CURRENT
+}
+
+function vimvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -q https://github.com/vim/vim/releases -O - | grep "tar\.gz" | head -n 1 | cut -d '/' -f 5 | cut -d '"' -f 1 | sed 's/v//g' | sed 's/\.tar\.gz//g')
+
+    vercomp "vim" $EXIST $CURRENT
+}
+
+function xmlparservercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://cpan.metacpan.org/authors/id/T/TO/TODDR | grep "XML" | cut -d '"' -f 2 | tail -n 1 | cut -d '-' -f 3 | sed 's/\.tar\.gz//g')
+
+    vercomp "XML-PARSER" $EXIST $CURRENT
+}
+
+function xzvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://tukaani.org/xz/ | grep "xz\-[0-9.]*tar[a-z.]*" | cut -d '"' -f 2 | sed 's/\.tar\.xz\.sig//g' | sed 's/xz-//g' | tail -n 1)
+
+    vercomp "xz" $EXIST $CURRENT
+}
+
+function zlibvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://zlib.net/ | grep "\.tar\.xz" | cut -d '"' -f 2 | head -n 1 | cut -d '-' -f 2 | sed 's/\.tar\.xz//g')
+
+    vercomp "zlib" $EXIST $CURRENT
+}
+
 export -f gnuvercomp
 export -f savvercomp
 export -f blfsvercomp
@@ -337,9 +423,20 @@ export -f lessvercomp
 export -f libcapvercomp
 export -f libpipelinevercomp
 export -f linuxvercomp
-export -f manpagevercomp
+export -f manpagesvercomp
 export -f mpcvercomp
 export -f mpfrvercomp
 export -f perlvercomp
 export -f pkgconfigvercomp
 export -f procpsvercomp
+export -f psmiscvercomp
+export -f shadowvercomp
+export -f sysklogdvercomp
+export -f tclvercomp
+export -f tzdatavercomp
+export -f udevlfsvercomp
+export -f utillinuxvercomp
+export -f vimvercomp
+export -f xmlparservercomp
+export -f xzvercomp
+export -f zlibvercomp

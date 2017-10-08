@@ -67,7 +67,7 @@ SHADOW="4.5"
 SYSKLOGD="1.5.1"
 SYSVINIT="2.88dsf"
 TAR="1.29"
-TCL_CORE="8.6.7"
+TCL="8.6.7"
 TEXINFO="6.4"
 TZDATA="2017b"
 UDEV_LFS="20140408"
@@ -133,7 +133,19 @@ gnuvercomp patch $PATCH
 # Perl is complicated; 5.27.x is out but 5.26.1 seems like the latest as it's the one used by Arch Linux
 perlvercomp $PERL
 procpsvercomp $PROCPS_NG
+psmiscvercomp $PSMISC
 gnuvercomp readline $READLINE
 gnuvercomp sed $SED
+shadowvercomp $SHADOW
+sysklogdvercomp $SYSKLOGD
+savvercomp sysvinit $SYSVINIT
 gnuvercomp tar $TAR
+tclvercomp $TCL
 gnuvercomp texinfo $TEXINFO
+tzdatavercomp $TZDATA
+udevlfsvercomp $UDEV_LFS
+utillinuxvercomp $UTIL_LINUX
+vimvercomp $VIM
+xmlparservercomp $XML_PARSER
+xzvercomp $XZ
+zlibvercomp $ZLIB

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version of Savannah packages
+# Version of GNU packages
 function gnuv {
     if [[ $1 == "gcc" ]]; then
          wget -cqO- http://ftp.gnu.org/gnu/gcc/ | grep "gcc" | cut -d '"' -f 8 | cut -d '-' -f 2 | cut -d '/' -f 1 | grep -v "vms" | tail -n 1

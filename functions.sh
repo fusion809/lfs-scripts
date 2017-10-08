@@ -2,12 +2,22 @@
 
 # Version of Savannah packages
 function gnuv {
-    wget -cqO- http://ftp.gnu.org/gnu/$1/ | grep "$1" | grep "tar" | cut -d '"' -f 8 | cut -d '-' -f 2 | grep "[0-9]\.tar\.[a-z]*z*" | sed 's/\.tar\.[a-z]*z[0-9a-z.]*//g' | uniq | tail -n 2
+    if [[ $1 == "gcc" ]]; then
+         wget -cqO- http://ftp.gnu.org/gnu/gcc/ | grep "gcc" | cut -d '"' -f 8 | cut -d '-' -f 2 | cut -d '/' -f 1 | grep -v "vms" | tail -n 1
+    elif [[ $1 == "gettext" ]]; then
+          wget -cqO- http://ftp.gnu.org/gnu/$1/ | grep "$1" | grep "tar" | cut -d '"' -f 8 | cut -d '-' -f 2 | grep "[0-9]\.tar\.[a-z]*z*" | sed 's/\.tar\.[a-z]*z[0-9a-z.]*//g' | uniq | tail -n 3 | head -n 2
+    else
+         wget -cqO- http://ftp.gnu.org/gnu/$1/ | grep "$1" | grep "tar" | cut -d '"' -f 8 | cut -d '-' -f 2 | grep "[0-9]\.tar\.[a-z]*z*" | sed 's/\.tar\.[a-z]*z[0-9a-z.]*//g' | uniq | tail -n 2
+    fi
 }
 
 # Version of Savannah packages
 function savv {
-    wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/\.src\.tar\.gz\.sig//g' | cut -d '-' -f 2 | tail -n 2
+    if [[ $1 == "man-db" ]]; then
+         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/\.src\.tar\.gz\.sig//g' | cut -d '-' -f 2 | tail -n 3 | head -n 2
+    else
+         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/\.src\.tar\.gz\.sig//g' | cut -d '-' -f 2 | tail -n 2
+    fi
 }
 
 # Ver func
@@ -122,6 +132,7 @@ function dhcpcdvercomp {
 function dilute {
     echo $1 | grep "a href" | head -n 1 | cut -d '"' -f 4 | cut -d '/' -f 3 | sed 's/v//g'
 }
+
 function sfvercomp {
     NAME="$1"
     EXIST="$2"
@@ -131,6 +142,10 @@ function sfvercomp {
          CURRENT=$(wget -cqO- https://sourceforge.net/projects/$NAME/files/$NAME/ | sed 's/,/\n/g' | grep "[0-9]" | grep "a href" | head -n 1 | cut -d '"' -f 4 | cut -d '/' -f 3 | sed 's/v//g')
     else
          CURRENT=$CURRENT1
+    fi
+
+    if [[ $NAME == "expat" ]]; then
+         CURRENT=$(wget -cqO- https://sourceforge.net/projects/$NAME/files/$NAME/ | sed 's/,/\n/g' | grep "a href" | grep "[0-9]" | grep -v "h1\|p>" | head -n 1 | cut -d '"' -f 4 | cut -d '/' -f 4 | cut -d ':' -f 1 | cut -d '-' -f 2 | sed 's/\.tar[a-z0-9.]*//g')
     fi
 
     vercomp $NAME $EXIST $CURRENT
@@ -165,6 +180,141 @@ function expectvercomp {
     vercomp "Expect" $EXIST $CURRENT
 }
 
+function filevercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- ftp://ftp.astron.com/pub/file/ | grep "asc" | cut -d '/' -f 6 | cut -d '"' -f 1 | sed 's/\.tar[a-z.]*//g' | cut -d '-' -f 2 | tail -n 1)
+
+    vercomp "file" $EXIST $CURRENT
+}
+
+function findutilsvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://ftp.gnu.org/gnu/findutils | grep "a href" | cut -d '"' -f 8 | tail -n 1 | sed 's/\.tar[a-z.]*//g' | cut -d '-' -f 2)
+
+    vercomp "findutils" $EXIST $CURRENT
+}
+
+function flexvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://github.com/westes/flex/releases | grep "download\/" | head -n 1 | cut -d '"' -f 2 | cut -d '/' -f 6 | cut -d 'v' -f 2)
+
+    vercomp "flex" $EXIST $CURRENT
+}
+
+function iata-etcvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://anduin.linuxfromscratch.org/LFS/ | grep "iana-etc" | cut -d '"' -f 2 | cut -d '-' -f 3 | sed 's/\.tar[a-z0-9.]*//g')
+
+    vercomp "iata-etc" $EXIST $CURRENT
+}
+
+function intltoolvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://launchpad.net/intltool/ | grep "+download" | cut -d '"' -f 2 | cut -d '/' -f 6 | head -n 1)
+
+    vercomp "intltool" $EXIST $CURRENT
+}
+
+function iproute2vercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.kernel.org/pub/linux/utils/net/iproute2/ | grep "tar\.xz" | cut -d '"' -f 2 | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g' | tail -n 1)
+
+    vercomp "iproute2" $EXIST $CURRENT
+}
+
+function kbdvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.kernel.org/pub/linux/utils/kbd/ | grep "tar\.xz" | cut -d '"' -f 2 | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g' | tail -n 1)
+
+    vercomp "kbd" $EXIST $CURRENT
+}
+
+function kmodvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.kernel.org/pub/linux/utils/kernel/kmod/ | grep "tar\.xz" | grep -v "2012" | cut -d '"' -f 2 | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g' | tail -n 1)
+
+    vercomp "kmod" $EXIST $CURRENT
+}
+
+function lessvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://www.greenwoodsoftware.com/less/ | grep "general" | grep "-" | cut -d '-' -f 2 | cut -d ' ' -f 1 | head -n 1)
+
+    vercomp "less" $EXIST $CURRENT
+}
+
+function libcapvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/ | grep "libcap-[0-9.a-z]*.xz" | cut -d '"' -f 2 | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g')
+
+    vercomp "libcap" $EXIST $CURRENT
+}
+
+function libpipelinevercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://download.savannah.gnu.org/releases/libpipeline/ | grep "libpipeline-[0-9.a-z]*.gz" | cut -d '"' -f 4 | tail -n 1 | sed 's/\.tar[a-z.]*//g' | cut -d '-' -f 2)
+
+    vercomp "libpipeline" $EXIST $CURRENT
+}
+
+function linuxvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.kernel.org/ | grep "\.tar\.xz" | head -n 1 | cut -d '"' -f 2 | tail -n 1 | cut -d '-' -f 2 | sed 's/\.tar\.xz//g')
+
+    vercomp "linux" $EXIST $CURRENT
+}
+
+function manpagevercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.kernel.org/pub/linux/docs/man-pages | grep "man-pages-[0-9.a-z]*.xz" | cut -d '"' -f 2 | cut -d '-' -f 3 | sed 's/\.tar[a-z.]*//g' | tail -n 1)
+
+    vercomp "man-page" $EXIST $CURRENT
+}
+
+function mpcvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- "http://www.multiprecision.org/index.php?prog=mpc&page=download" | grep "SHA1" | cut -d ' ' -f 2 | cut -d '-' -f 2 | sed 's/\.tar\.gz//g')
+
+    vercomp "mpc" $EXIST $CURRENT
+}
+
+function mpfrvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://www.mpfr.org/mpfr-current/ | grep "mpfr-[0-9a-z.]*.xz" | cut -d '"' -f 2 | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g' | head -n 1)
+
+    vercomp "mpfr" $EXIST $CURRENT
+}
+
+function perlvercomp {
+    EXIST="$1"
+    CURRENT=$(perl --version | cut -d '(' -f 2 | cut -d ')' -f 1 | grep "v[0-9.]*" | head -n 1 | sed 's/v//g')
+
+    vercomp "perl" $EXIST $CURRENT
+}
+
+function pkgconfigvercomp {
+    EXIST="$1"
+    CURRENT1=$(wget -cqO- https://pkg-config.freedesktop.org/releases/ | grep "pkg-config-[0-9.]*tar.[a-z]*" | cut -d '"' -f 8 | sed 's/\.tar[a-z.]*//g' | uniq | tail -n 2 | cut -d '-' -f 3)
+ 
+    ATTEMPT_L1=$(echo $CURRENT1 | head -n 1)
+    ATTEMPT_L2=$(echo $CURRENT1 | tail -n 1)
+
+    if [[ $ATTEMPT_L1 == ${ATTEMPT_L2}.[0-9] ]]; then
+         CURRENT=${ATTEMPT_L1}
+    else
+         CURRENT=${ATTEMPT_L2}
+    fi
+
+    vercomp "pkg-config" $EXIST $CURRENT
+}
+
+function procpsvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://sourceforge.net/projects/procps-ng/files/Production/ | grep "procps-ng-[a-z0-9.]*xz" | head -n 1 | cut -d '"' -f 4 | cut -d '-' -f 3 | cut -d ':' -f 1 | sed 's/\.tar[a-z.]*//g')
+
+    vercomp "procps-ng" $EXIST $CURRENT
+}
+
 export -f gnuvercomp
 export -f savvercomp
 export -f blfsvercomp
@@ -175,3 +325,21 @@ export -f dhcpcdvercomp
 export -f eudevvercomp
 export -f sfvercomp
 export -f expectvercomp
+export -f filevercomp
+export -f findutilsvercomp
+export -f flexvercomp
+export -f iata-etcvercomp
+export -f intltoolvercomp
+export -f iproute2vercomp
+export -f kbdvercomp
+export -f kmodvercomp
+export -f lessvercomp
+export -f libcapvercomp
+export -f libpipelinevercomp
+export -f linuxvercomp
+export -f manpagevercomp
+export -f mpcvercomp
+export -f mpfrvercomp
+export -f perlvercomp
+export -f pkgconfigvercomp
+export -f procpsvercomp

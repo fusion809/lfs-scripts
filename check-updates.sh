@@ -56,14 +56,18 @@ MAN_PAGES="4.12"
 MPC="1.0.3"
 MPFR="3.1.5"
 NCURSES="6.0"
+OPENSSL="1.1.0f"
 PATCH="2.7.5"
+PCIUTILS="3.5.5"
 PERL="5.26.1" # 5.26.0 was original
 PKG_CONFIG="0.29.2"
 PROCPS_NG="3.3.12"
 PSMISC="23.1"
+PYTHON="3.6.2"
 READLINE="7.0"
 SED="4.4"
 SHADOW="4.5"
+SUDO="1.8.20p2"
 SYSKLOGD="1.5.1"
 SYSVINIT="2.88dsf"
 TAR="1.29"
@@ -73,6 +77,7 @@ TZDATA="2017b"
 UDEV_LFS="20140408"
 UTIL_LINUX="2.30.1"
 VIM="8.0.1176" # 8.0.0586 was default
+WGET="1.19.1"
 XML_PARSER="2.44"
 XZ="5.2.3"
 ZLIB="1.2.11"
@@ -129,11 +134,14 @@ manpagesvercomp $MAN_PAGES
 mpcvercomp $MPC
 mpfrvercomp $MPFR
 gnuvercomp ncurses $NCURSES
+opensslvercomp $OPENSSL
 gnuvercomp patch $PATCH
+pciutilsvercomp $PCIUTILS
 # Perl is complicated; 5.27.x is out but 5.26.1 seems like the latest as it's the one used by Arch Linux
 perlvercomp $PERL
 procpsvercomp $PROCPS_NG
 psmiscvercomp $PSMISC
+pythonvercomp $PYTHON
 gnuvercomp readline $READLINE
 gnuvercomp sed $SED
 shadowvercomp $SHADOW
@@ -146,6 +154,7 @@ tzdatavercomp $TZDATA
 udevlfsvercomp $UDEV_LFS
 utillinuxvercomp $UTIL_LINUX
 vimvercomp $VIM
+gnuvercomp wget $WGET
 xmlparservercomp $XML_PARSER
 xzvercomp $XZ
 zlibvercomp $ZLIB

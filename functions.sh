@@ -285,6 +285,20 @@ function mpfrvercomp {
     vercomp "mpfr" $EXIST $CURRENT
 }
 
+function opensslvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.openssl.org/source/ | grep "\.tar\.gz" | cut -d '"' -f 2 | head -n 2 | tail -n 1 | cut -d '-' -f 2 | sed 's/\.tar\.gz//g')
+
+    vercomp "OpenSSL" $EXIST $CURRENT
+}
+
+function pciutilsvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.kernel.org/pub/software/utils/pciutils/ | grep "v[0-9.]*" | cut -d '"' -f 2 | sed 's/\///g' | sed 's/v//g' | tail -n 1 | sed 's/\.tar\.xz//g' | cut -d '-' -f 2)
+
+    vercomp "pciutils" $EXIST $CURRENT
+}
+
 function perlvercomp {
     EXIST="$1"
     CURRENT=$(perl --version | cut -d '(' -f 2 | cut -d ')' -f 1 | grep "v[0-9.]*" | head -n 1 | sed 's/v//g')
@@ -322,11 +336,25 @@ function psmiscvercomp {
     vercomp "psmisc" $EXIST $CURRENT
 }
 
+function pythonvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.python.org/downloads/source/ | grep "ftp/python" | grep "/3" | grep "\.tar" | grep -v "[0-9]a[0-9]\.tar" | grep -v "[0-9]rc[0-9]\.tar" | cut -d '/' -f 6 | head -n 1)
+
+    vercomp "Python" $EXIST $CURRENT
+}
+
 function shadowvercomp {
     EXIST="$1"
     CURRENT=$(wget -cqO- https://github.com/shadow-maint/shadow/releases | grep "shadow\-[0-9.]*\.tar\.gz" | cut -d '>' -f 2 | cut -d '<' -f 1 | cut -d '-' -f 2 | grep "tar" | sed 's/\.tar\.gz//g' | head -n 1)
 
     vercomp "shadow" $EXIST $CURRENT
+}
+
+function sudovercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.sudo.ws/stable.html | grep "\.tar\.gz" | cut -d '/' -f 3 | cut -d '"' -f 1 | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g')
+
+    vercomp "sudo" $EXIST $CURRENT
 }
 
 function sysklogdvercomp {
@@ -426,10 +454,13 @@ export -f linuxvercomp
 export -f manpagesvercomp
 export -f mpcvercomp
 export -f mpfrvercomp
+export -f opensslvercomp
+export -f pciutilsvercomp
 export -f perlvercomp
 export -f pkgconfigvercomp
 export -f procpsvercomp
 export -f psmiscvercomp
+export -f pythonvercomp
 export -f shadowvercomp
 export -f sysklogdvercomp
 export -f tclvercomp

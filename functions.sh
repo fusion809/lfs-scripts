@@ -429,6 +429,7 @@ function zlibvercomp {
     vercomp "zlib" $EXIST $CURRENT
 }
 
+# Export functions
 export -f gnuvercomp
 export -f savvercomp
 export -f blfsvercomp

@@ -301,7 +301,7 @@ function pciutilsvercomp {
 
 function perlvercomp {
     EXIST="$1"
-    CURRENT=$(perl --version | cut -d '(' -f 2 | cut -d ')' -f 1 | grep "v[0-9.]*" | head -n 1 | sed 's/v//g')
+    CURRENT=$(perl --version | cut -d '(' -f 2 | cut -d ')' -f 1 | grep "v[0-9].[0-9][02468]" | head -n 1 | sed 's/v//g')
 
     vercomp "perl" $EXIST $CURRENT
 }

@@ -3,28 +3,32 @@
 . $HOME/GitHub/mine/scripts/lfs-scripts/functions.sh
 
 # Existing package versions
-ACL_VERSION1="2.2.52"
-ATTR_VERSION1="2.4.47"
-AUTOCONF_VERSION1="2.69"
-AUTOMAKE_VERSION1="1.15.1"
-BASH_VERSION1="4.4"
-BC_VERSION1="1.07.1"
-BINUTILS_VERSION1="2.29"
-BISON_VERSION1="3.0.4"
-BLFS_VERSION1="20170731"
+ACL="2.2.52"
+ATTR="2.4.47"
+AUTOCONF="2.69"
+AUTOMAKE="1.15.1"
+BASH="4.4"
+BC="1.07.1"
+BINUTILS="2.29"
+BISON="3.0.4"
+BLFS="20170731"
+BZIP2="1.0.6"
+CHECK="0.11.0"
+COREUTILS="8.27"
+DBUS="1.10.22"
+DEJAGNU="1.6"
 
-ACL_VERSION2=$(wget -c http://download.savannah.gnu.org/releases/acl/ -qO- | grep "sig" | cut -d '"' -f 4 | sed 's/\.src\.tar\.gz\.sig//g' | cut -d '-' -f 2 | tail -n 1)
-ATTR_VERSION2=$(wget -c http://download.savannah.gnu.org/releases/attr/ -qO- | grep "sig" | cut -d '"' -f 4 | sed 's/\.src\.tar\.gz\.sig//g' | cut -d '-' -f 2 | tail -n 1)
-
-
-AUTOCONF_VERSION2=$(gnuver autoconf)
-
-# AUTOMAKE
-AUTOMAKE_VERSION2=$(gnuver automake)
-
-# BASH
-BASH_VERSION2=$(gnuver bash)
-
-# BC
-BC_VERSION2=$(gnuver bc)
-
+# Check
+savvercomp acl $ACL
+savvercomp attr $ATTR
+gnuvercomp autoconf $AUTOCONF
+gnuvercomp bash $BASH
+gnuvercomp bc $BC
+gnuvercomp binutils $BINUTILS
+gnuvercomp bison $BISON
+blfsvercomp $BLFS
+bzip2vercomp $BZIP2
+checkvercomp $CHECK
+gnuvercomp coreutils $COREUTILS
+dbusvercomp $DBUS
+gnuvercomp $DEJAGNU

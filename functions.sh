@@ -14,7 +14,7 @@ function gnuv {
 # Version of Savannah packages
 function savv {
     if [[ $1 == "man-db" ]]; then
-         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/[a-z.]*\.tar\.gz\.sig//g' | sed 's/\.tar\.bz2\.sig//g' | cut -d '-' -f 2 | tail -n 3 | head -n 2
+         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "\.tar\.xz\.sig" | cut -d '"' -f 4 | sed 's/[a-z.]*\.tar\.xz\.sig//g' | cut -d '-' -f 3 | tail -n 2
     else
          wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/[a-z.]*\.tar\.gz\.sig//g' | sed 's/\.tar\.bz2\.sig//g' | cut -d '-' -f 2 | tail -n 2
     fi

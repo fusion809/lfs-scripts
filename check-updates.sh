@@ -138,7 +138,6 @@ gnuvercomp ncurses $NCURSES
 opensslvercomp $OPENSSL
 gnuvercomp patch $PATCH
 pciutilsvercomp $PCIUTILS
-# Perl is complicated; 5.27.x is out but 5.26.1 seems like the latest as it's the one used by Arch Linux
 perlvercomp $PERL
 procpsvercomp $PROCPS_NG
 psmiscvercomp $PSMISC

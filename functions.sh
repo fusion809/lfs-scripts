@@ -301,7 +301,7 @@ function pciutilsvercomp {
 
 function perlvercomp {
     EXIST="$1"
-    CURRENT=$(perl --version | cut -d '(' -f 2 | cut -d ')' -f 1 | grep "v[0-9].[0-9][02468]" | head -n 1 | sed 's/v//g')
+    CURRENT=$(wget -cqO- http://www.cpan.org/src/5.0/ | grep "tar\.xz" | grep "5\.[0-9][02468]\.[0-9]" | cut -d '"' -f 2 | grep -v "txt" | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g' | uniq | tail -n 1)
 
     vercomp "perl" $EXIST $CURRENT
 }

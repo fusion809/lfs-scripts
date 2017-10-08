@@ -17,6 +17,9 @@ CHECK="0.11.0"
 COREUTILS="8.27"
 DBUS="1.10.22"
 DEJAGNU="1.6"
+DHCPCD="6.11.5"
+DIFFUTILS="3.6"
+E2FSPROGS="1.43.5"
 
 # Check
 savvercomp acl $ACL
@@ -32,3 +35,6 @@ checkvercomp $CHECK
 gnuvercomp coreutils $COREUTILS
 dbusvercomp $DBUS
 gnuvercomp $DEJAGNU
+dhcpcdvercomp $DHCPCD
+gnuvercomp $DIFFUTILS
+e2fsprogsvercomp $E2FSPROGS

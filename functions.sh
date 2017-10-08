@@ -7,7 +7,7 @@ function gnuv {
 
 # Version of Savannah packages
 function savv {
-    wget -c http://download.savannah.gnu.org/releases/$1/ -qO- | grep "sig" | cut -d '"' -f 4 | sed 's/\.src\.tar\.gz\.sig//g' | cut -d '-' -f 2 | tail -n 2
+    wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/\.src\.tar\.gz\.sig//g' | cut -d '-' -f 2 | tail -n 2
 }
 
 # Ver func
@@ -17,7 +17,7 @@ function ver {
     ATTEMPT_L1=$(echo $1 | sed 's/ /\n/g' | head -n 1)
     ATTEMPT_L2=$(echo $1 | sed 's/ /\n/g' | tail -n 1)
 
-    if [[ $ATTEMPT_L1 == ${ATTEMPT_L2}.[0-9.]* ]]; then
+    if [[ $ATTEMPT_L1 == ${ATTEMPT_L2}.[0-9.pu]* ]]; then
          VERSION=${ATTEMPT_L1}
     else
          VERSION=${ATTEMPT_L2}
@@ -113,9 +113,25 @@ function dbusvercomp {
     vercomp "dbus" $EXIST $CURRENT
 }
 
+function dhcpcdvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://roy.marples.name/downloads/dhcpcd/ | cut -d '"' -f 2 | grep -v "beta\|rc\|ui\|gtk\|dbus\|test\|initd\|dhcpcd\.xz\|<" | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g' | tail -n 1)
+
+    vercomp "dhcpcd" $EXIST $CURRENT
+}
+
+function e2fsprogsvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://sourceforge.net/projects/e2fsprogs/files/e2fsprogs/ | sed 's/,/\n/g' | grep "v[0-9]" | grep "a href" | head -n 1 | cut -d '"' -f 4 | cut -d '/' -f 3 | sed 's/v//g')
+
+    vercomp "e2fsprogs" $EXIST $CURRENT
+}
+
 export -f gnuvercomp
 export -f savvercomp
 export -f blfsvercomp
 export -f bzip2vercomp
 export -f checkvercomp
 export -f dbusvercomp
+export -f dhcpcdvercomp
+export -f e2fsprogsvercomp

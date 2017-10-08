@@ -14,9 +14,9 @@ function gnuv {
 # Version of Savannah packages
 function savv {
     if [[ $1 == "man-db" ]]; then
-         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/\[a-z.]*\.tar\.gz\.sig//g' | sed 's/\.tar\.bz2\.sig//g' | cut -d '-' -f 2 | tail -n 3 | head -n 2
+         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/[a-z.]*\.tar\.gz\.sig//g' | sed 's/\.tar\.bz2\.sig//g' | cut -d '-' -f 2 | tail -n 3 | head -n 2
     else
-         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/\[a-z.]*\.tar\.gz\.sig//g' | sed 's/\.tar\.bz2\.sig//g' | cut -d '-' -f 2 | tail -n 2
+         wget -cqO- http://download.savannah.gnu.org/releases/$1/ | grep "sig" | cut -d '"' -f 4 | sed 's/[a-z.]*\.tar\.gz\.sig//g' | sed 's/\.tar\.bz2\.sig//g' | cut -d '-' -f 2 | tail -n 2
     fi
 }
 
@@ -56,7 +56,7 @@ function savver {
     ATTEMPT_L1=$(savv $1 | head -n 1)
     ATTEMPT_L2=$(savv $1 | tail -n 1)
 
-    if [[ $ATTEMPT_L1 == ${ATTEMPT_L2}.[0-9] ]]; then
+    if [[ $ATTEMPT_L1 == ${ATTEMPT_L2}.[0-9]* ]]; then
          VERSION=${ATTEMPT_L1}
     else
          VERSION=${ATTEMPT_L2}
@@ -217,7 +217,7 @@ function intltoolvercomp {
 
 function iproute2vercomp {
     EXIST="$1"
-    CURRENT=$(wget -cqO- https://www.kernel.org/pub/linux/utils/net/iproute2/ | grep "tar\.xz" | cut -d '"' -f 2 | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g' | tail -n 1)
+    CURRENT=$(wget -cqO- https://www.kernel.org/pub/linux/utils/net/iproute2/ | grep -v "2015" | grep -v "2016" | grep "tar\.xz" | cut -d '"' -f 2 | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g' | tail -n 1)
 
     vercomp "iproute2" $EXIST $CURRENT
 }
@@ -294,7 +294,7 @@ function opensslvercomp {
 
 function pciutilsvercomp {
     EXIST="$1"
-    CURRENT=$(wget -cqO- https://www.kernel.org/pub/software/utils/pciutils/ | grep "v[0-9.]*" | cut -d '"' -f 2 | sed 's/\///g' | sed 's/v//g' | tail -n 1 | sed 's/\.tar\.xz//g' | cut -d '-' -f 2)
+    CURRENT=$(wget -cqO- https://www.kernel.org/pub/software/utils/pciutils/ | grep "[0-9.]*" | cut -d '"' -f 2 | grep "xz" | cut -d '-' -f 2 | sed 's/\.tar\.xz//g' | tail -n 1)
 
     vercomp "pciutils" $EXIST $CURRENT
 }

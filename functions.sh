@@ -119,12 +119,50 @@ function dhcpcdvercomp {
 
     vercomp "dhcpcd" $EXIST $CURRENT
 }
+function dilute {
+    echo $1 | grep "a href" | head -n 1 | cut -d '"' -f 4 | cut -d '/' -f 3 | sed 's/v//g'
+}
+function sfvercomp {
+    NAME="$1"
+    EXIST="$2"
+    CURRENT1=$(wget -cqO- https://sourceforge.net/projects/$NAME/files/$NAME/ | sed 's/,/\n/g' | grep "v[0-9]" | grep "a href" | head -n 1 | cut -d '"' -f 4 | cut -d '/' -f 3 | sed 's/v//g')
 
-function e2fsprogsvercomp {
+    if ! [[ $CURRENT1 == [0-9.]* ]]; then
+         CURRENT=$(wget -cqO- https://sourceforge.net/projects/$NAME/files/$NAME/ | sed 's/,/\n/g' | grep "[0-9]" | grep "a href" | head -n 1 | cut -d '"' -f 4 | cut -d '/' -f 3 | sed 's/v//g')
+    else
+         CURRENT=$CURRENT1
+    fi
+
+    vercomp $NAME $EXIST $CURRENT
+}
+
+# EUDEV
+function eudevver {
+    eudevv=$(wget -cqO- https://dev.gentoo.org/~blueness/eudev/ | grep "eudev" | grep "tar" | cut -d '=' -f 3 | sed 's/\.tar[0-9a-zA-Z./><-]*//g' | sed 's/ALIGN//g' | cut -d '-' -f 2 | tail -n 2)
+    ATTEMPT_L1=$(echo $eudevv | head -n 1)
+    ATTEMPT_L2=$(echo $eudevv | tail -n 1)
+
+    if [[ $ATTEMPT_L1 == ${ATTEMPT_L2}.[0-9] ]]; then
+         VERSION=${ATTEMPT_L1}
+    else
+         VERSION=${ATTEMPT_L2}
+    fi
+
+    printf "$VERSION\n"
+}
+
+function eudevvercomp {
     EXIST="$1"
-    CURRENT=$(wget -cqO- https://sourceforge.net/projects/e2fsprogs/files/e2fsprogs/ | sed 's/,/\n/g' | grep "v[0-9]" | grep "a href" | head -n 1 | cut -d '"' -f 4 | cut -d '/' -f 3 | sed 's/v//g')
+    CURRENT=$(eudevver)
 
-    vercomp "e2fsprogs" $EXIST $CURRENT
+    vercomp "eudev" $EXIST $CURRENT
+}
+
+function expectvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://sourceforge.net/projects/expect/files/Expect/ | sed 's/,/\n/g' | grep "[0-9]" | grep "a href" | grep -v "p>" | grep "download" | cut -d '"' -f 4 | cut -d ':' -f 1 | cut -d '/' -f 3)
+
+    vercomp "Expect" $EXIST $CURRENT
 }
 
 export -f gnuvercomp
@@ -134,4 +172,6 @@ export -f bzip2vercomp
 export -f checkvercomp
 export -f dbusvercomp
 export -f dhcpcdvercomp
-export -f e2fsprogsvercomp
+export -f eudevvercomp
+export -f sfvercomp
+export -f expectvercomp

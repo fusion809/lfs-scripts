@@ -20,6 +20,9 @@ DEJAGNU="1.6"
 DHCPCD="6.11.5"
 DIFFUTILS="3.6"
 E2FSPROGS="1.43.5"
+EUDEV="3.2.2"
+EXPAT="2.2.3"
+EXPECT="5.45"
 
 # Check
 savvercomp acl $ACL
@@ -37,4 +40,7 @@ dbusvercomp $DBUS
 gnuvercomp $DEJAGNU
 dhcpcdvercomp $DHCPCD
 gnuvercomp $DIFFUTILS
-e2fsprogsvercomp $E2FSPROGS
+sfvercomp e2fsprogs $E2FSPROGS
+eudevvercomp $EUDEV
+sfvercomp expat $EXPAT
+expectvercomp $EXPECT

@@ -51,7 +51,11 @@ ZSH_THEME="hcompact"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git github zsh-syntax-highlighting safe-paste zsh-completions)
+plugins=(git 
+zsh-syntax-highlighting 
+safe-paste 
+zsh-completions
+)
 autoload -U compinit && compinit
 source ~/.oh-my-zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
 # bind UP and DOWN arrow keys
@@ -102,7 +106,7 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-for i in $HOME/Shell/*.sh
+for i in $HOME/Shell/{01,02,03,05}*.sh
 do
   . "$i"
 done

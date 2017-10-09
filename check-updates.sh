@@ -29,6 +29,7 @@ FLEX="2.6.4"
 GAWK="4.1.4"
 GDBM="1.13"
 GETTEXT="0.19.8.1"
+GIT="2.14.2"
 GLIBC="2.26"
 GMP="6.1.2"
 GPERF="3.1"
@@ -82,6 +83,7 @@ WGET="1.19.1"
 XML_PARSER="2.44"
 XZ="5.2.3"
 ZLIB="1.2.11"
+ZSH="5.4.2"
 
 # Check
 savvercomp acl $ACL
@@ -106,6 +108,7 @@ expectvercomp $EXPECT
 filevercomp $FILE
 findutilsvercomp $FINDUTILS
 flexvercomp $FLEX
+gitvercomp $GIT
 gnuvercomp gawk $GAWK
 gnuvercomp gdbm $GDBM
 gnuvercomp gettext $GETTEXT
@@ -158,3 +161,4 @@ gnuvercomp wget $WGET
 xmlparservercomp $XML_PARSER
 xzvercomp $XZ
 zlibvercomp $ZLIB
+zshvercomp $ZSH

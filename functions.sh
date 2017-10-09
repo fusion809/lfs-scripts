@@ -201,6 +201,13 @@ function flexvercomp {
     vercomp "flex" $EXIST $CURRENT
 }
 
+function gitvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://github.com/git/git/releases | grep "\.tar\.gz" | grep "v[0-9]" | grep -v "rc[0-9]" | head -n 1 | cut -d '"' -f 2 | cut -d '/' -f 5 | sed 's/v//g' | sed 's/\.tar\.gz//g')
+
+    vercomp "git" $EXIST $CURRENT
+}
+
 function iata-etcvercomp {
     EXIST="$1"
     CURRENT=$(wget -cqO- http://anduin.linuxfromscratch.org/LFS/ | grep "iana-etc" | cut -d '"' -f 2 | cut -d '-' -f 3 | sed 's/\.tar[a-z0-9.]*//g')
@@ -429,6 +436,13 @@ function zlibvercomp {
     vercomp "zlib" $EXIST $CURRENT
 }
 
+function zshvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://www.zsh.org/pub/ | grep "tar\.gz" | grep -v "asc" | grep -v "doc" | grep "zsh\-" | cut -d '"' -f 6 | cut -d '-' -f 2 | sed 's/\.tar\.gz//g' | tail -n 1)
+
+    vercomp "zsh" $EXIST $CURRENT
+}
+
 # Export functions
 export -f gnuvercomp
 export -f savvercomp
@@ -443,6 +457,7 @@ export -f expectvercomp
 export -f filevercomp
 export -f findutilsvercomp
 export -f flexvercomp
+export -f gitvercomp
 export -f iata-etcvercomp
 export -f intltoolvercomp
 export -f iproute2vercomp
@@ -472,3 +487,4 @@ export -f vimvercomp
 export -f xmlparservercomp
 export -f xzvercomp
 export -f zlibvercomp
+export -f zshvercomp

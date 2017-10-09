@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version of Savannah packages
+# Version of GNU packages
 function gnuv {
     if [[ $1 == "gcc" ]]; then
          wget -cqO- http://ftp.gnu.org/gnu/gcc/ | grep "gcc" | cut -d '"' -f 8 | cut -d '-' -f 2 | cut -d '/' -f 1 | grep -v "vms" | tail -n 1
@@ -116,6 +116,13 @@ function checkvercomp {
     vercomp "check" $EXIST $CURRENT
 }
 
+function curlvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://curl.haxx.se/download/ | grep "xz<" | cut -d '"' -f 8 | sed 's/[a-z-]//g' | sed 's/..$//g')
+
+    vercomp "curl" $EXIST $CURRENT
+}
+
 function dbusvercomp {
     EXIST="$1"
     CURRENT=$(wget -cqO- https://dbus.freedesktop.org/releases/dbus/ | grep "10.[0-9][a-z0-9.]*asc" | cut -d '-' -f 2 | sed 's/\.tar[a-z.">]*//g' | tail -n 1)
@@ -199,6 +206,13 @@ function flexvercomp {
     CURRENT=$(wget -cqO- https://github.com/westes/flex/releases | grep "download\/" | head -n 1 | cut -d '"' -f 2 | cut -d '/' -f 6 | cut -d 'v' -f 2)
 
     vercomp "flex" $EXIST $CURRENT
+}
+
+function gitvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://github.com/git/git/releases | grep "\.tar\.gz" | grep "v[0-9]" | grep -v "rc[0-9]" | head -n 1 | cut -d '"' -f 2 | cut -d '/' -f 5 | sed 's/v//g' | sed 's/\.tar\.gz//g')
+
+    vercomp "git" $EXIST $CURRENT
 }
 
 function iata-etcvercomp {
@@ -301,9 +315,16 @@ function pciutilsvercomp {
 
 function perlvercomp {
     EXIST="$1"
-    CURRENT=$(perl --version | cut -d '(' -f 2 | cut -d ')' -f 1 | grep "v[0-9.]*" | head -n 1 | sed 's/v//g')
+    CURRENT=$(wget -cqO- http://www.cpan.org/src/5.0/ | grep "tar\.xz" | grep "5\.[0-9][02468]\.[0-9]" | cut -d '"' -f 2 | grep -v "txt" | cut -d '-' -f 2 | sed 's/\.tar[a-z.]*//g' | uniq | tail -n 1)
 
     vercomp "perl" $EXIST $CURRENT
+}
+
+function perlerrvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://search.cpan.org/~shlomif/Error/lib/Error.pm | grep "0\.[0-9]" | cut -d "'" -f 6 | head -n 1 | sed 's/[a-zA-Z-]//g')
+
+    vercomp "perl-error" $EXIST $CURRENT
 }
 
 function pkgconfigvercomp {
@@ -336,11 +357,18 @@ function psmiscvercomp {
     vercomp "psmisc" $EXIST $CURRENT
 }
 
-function pythonvercomp {
+function python2vercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.python.org/downloads/source/ | grep "ftp/python" | grep "/2" | grep "\.tar" | grep -v "[0-9]a[0-9]\.tar" | grep -v "[0-9]rc[0-9]\.tar" | cut -d '/' -f 6 | head -n 1)
+
+    vercomp "Python2" $EXIST $CURRENT
+}
+
+function python3vercomp {
     EXIST="$1"
     CURRENT=$(wget -cqO- https://www.python.org/downloads/source/ | grep "ftp/python" | grep "/3" | grep "\.tar" | grep -v "[0-9]a[0-9]\.tar" | grep -v "[0-9]rc[0-9]\.tar" | cut -d '/' -f 6 | head -n 1)
 
-    vercomp "Python" $EXIST $CURRENT
+    vercomp "Python3" $EXIST $CURRENT
 }
 
 function shadowvercomp {
@@ -410,7 +438,7 @@ function vimvercomp {
 
 function xmlparservercomp {
     EXIST="$1"
-    CURRENT=$(wget -cqO- http://cpan.metacpan.org/authors/id/T/TO/TODDR | grep "XML" | cut -d '"' -f 2 | tail -n 1 | cut -d '-' -f 3 | sed 's/\.tar\.gz//g')
+    CURRENT=$(wget -cqO- http://cpan.metacpan.org/authors/id/T/TO/TODDR | grep "XML" | cut -d '"' -f 2 | tail -n 1 | cut -d '-' -f 3 | sed 's/\.tar\.gz//g' | sed 's/_0[0-9]//g' )
 
     vercomp "XML-PARSER" $EXIST $CURRENT
 }
@@ -429,11 +457,20 @@ function zlibvercomp {
     vercomp "zlib" $EXIST $CURRENT
 }
 
+function zshvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://www.zsh.org/pub/ | grep "tar\.gz" | grep -v "asc" | grep -v "doc" | grep "zsh\-" | cut -d '"' -f 6 | cut -d '-' -f 2 | sed 's/\.tar\.gz//g' | tail -n 1)
+
+    vercomp "zsh" $EXIST $CURRENT
+}
+
+# Export functions
 export -f gnuvercomp
 export -f savvercomp
 export -f blfsvercomp
 export -f bzip2vercomp
 export -f checkvercomp
+export -f curlvercomp
 export -f dbusvercomp
 export -f dhcpcdvercomp
 export -f eudevvercomp
@@ -442,6 +479,7 @@ export -f expectvercomp
 export -f filevercomp
 export -f findutilsvercomp
 export -f flexvercomp
+export -f gitvercomp
 export -f iata-etcvercomp
 export -f intltoolvercomp
 export -f iproute2vercomp
@@ -457,10 +495,12 @@ export -f mpfrvercomp
 export -f opensslvercomp
 export -f pciutilsvercomp
 export -f perlvercomp
+export -f perlerrvercomp
 export -f pkgconfigvercomp
 export -f procpsvercomp
 export -f psmiscvercomp
-export -f pythonvercomp
+export -f python2vercomp
+export -f python3vercomp
 export -f shadowvercomp
 export -f sysklogdvercomp
 export -f tclvercomp
@@ -471,3 +511,4 @@ export -f vimvercomp
 export -f xmlparservercomp
 export -f xzvercomp
 export -f zlibvercomp
+export -f zshvercomp

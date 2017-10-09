@@ -15,6 +15,7 @@ BLFS="20170731"
 BZIP2="1.0.6"
 CHECK="0.11.0"
 COREUTILS="8.28"
+CURL="7.56.0"
 DBUS="1.10.24" # Updated
 DEJAGNU="1.6"
 DHCPCD="6.11.5"
@@ -62,10 +63,12 @@ OPENSSL="1.1.0f"
 PATCH="2.7.5"
 PCIUTILS="3.5.5"
 PERL="5.26.1" # 5.26.0 was original
+PERLERR="0.17025"
 PKG_CONFIG="0.29.2"
 PROCPS_NG="3.3.12"
 PSMISC="23.1"
-PYTHON="3.6.3"
+PYTHON2="2.7.14"
+PYTHON3="3.6.3"
 READLINE="7.0"
 SED="4.4"
 SHADOW="4.5"
@@ -96,6 +99,7 @@ gnuvercomp bison $BISON
 blfsvercomp $BLFS
 bzip2vercomp $BZIP2
 checkvercomp $CHECK
+curlvercomp $CURL
 gnuvercomp coreutils $COREUTILS
 dbusvercomp $DBUS
 gnuvercomp $DEJAGNU
@@ -142,9 +146,11 @@ opensslvercomp $OPENSSL
 gnuvercomp patch $PATCH
 pciutilsvercomp $PCIUTILS
 perlvercomp $PERL
+perlerrvercomp $PERLERR
 procpsvercomp $PROCPS_NG
 psmiscvercomp $PSMISC
-pythonvercomp $PYTHON
+python2vercomp $PYTHON2
+python3vercomp $PYTHON3
 gnuvercomp readline $READLINE
 gnuvercomp sed $SED
 shadowvercomp $SHADOW

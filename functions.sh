@@ -116,6 +116,13 @@ function checkvercomp {
     vercomp "check" $EXIST $CURRENT
 }
 
+function curlvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://curl.haxx.se/download/ | grep "xz<" | cut -d '"' -f 8 | sed 's/[a-z-]//g' | sed 's/..$//g')
+
+    vercomp "curl" $EXIST $CURRENT
+}
+
 function dbusvercomp {
     EXIST="$1"
     CURRENT=$(wget -cqO- https://dbus.freedesktop.org/releases/dbus/ | grep "10.[0-9][a-z0-9.]*asc" | cut -d '-' -f 2 | sed 's/\.tar[a-z.">]*//g' | tail -n 1)
@@ -313,6 +320,13 @@ function perlvercomp {
     vercomp "perl" $EXIST $CURRENT
 }
 
+function perlerrvercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- http://search.cpan.org/~shlomif/Error/lib/Error.pm | grep "0\.[0-9]" | cut -d "'" -f 6 | head -n 1 | sed 's/[a-zA-Z-]//g')
+
+    vercomp "perl-error" $EXIST $CURRENT
+}
+
 function pkgconfigvercomp {
     EXIST="$1"
     CURRENT1=$(wget -cqO- https://pkg-config.freedesktop.org/releases/ | grep "pkg-config-[0-9.]*tar.[a-z]*" | cut -d '"' -f 8 | sed 's/\.tar[a-z.]*//g' | uniq | tail -n 2 | cut -d '-' -f 3)
@@ -343,11 +357,18 @@ function psmiscvercomp {
     vercomp "psmisc" $EXIST $CURRENT
 }
 
-function pythonvercomp {
+function python2vercomp {
+    EXIST="$1"
+    CURRENT=$(wget -cqO- https://www.python.org/downloads/source/ | grep "ftp/python" | grep "/2" | grep "\.tar" | grep -v "[0-9]a[0-9]\.tar" | grep -v "[0-9]rc[0-9]\.tar" | cut -d '/' -f 6 | head -n 1)
+
+    vercomp "Python2" $EXIST $CURRENT
+}
+
+function python3vercomp {
     EXIST="$1"
     CURRENT=$(wget -cqO- https://www.python.org/downloads/source/ | grep "ftp/python" | grep "/3" | grep "\.tar" | grep -v "[0-9]a[0-9]\.tar" | grep -v "[0-9]rc[0-9]\.tar" | cut -d '/' -f 6 | head -n 1)
 
-    vercomp "Python" $EXIST $CURRENT
+    vercomp "Python3" $EXIST $CURRENT
 }
 
 function shadowvercomp {
@@ -449,6 +470,7 @@ export -f savvercomp
 export -f blfsvercomp
 export -f bzip2vercomp
 export -f checkvercomp
+export -f curlvercomp
 export -f dbusvercomp
 export -f dhcpcdvercomp
 export -f eudevvercomp
@@ -473,10 +495,12 @@ export -f mpfrvercomp
 export -f opensslvercomp
 export -f pciutilsvercomp
 export -f perlvercomp
+export -f perlerrvercomp
 export -f pkgconfigvercomp
 export -f procpsvercomp
 export -f psmiscvercomp
-export -f pythonvercomp
+export -f python2vercomp
+export -f python3vercomp
 export -f shadowvercomp
 export -f sysklogdvercomp
 export -f tclvercomp

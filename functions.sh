@@ -118,7 +118,7 @@ function checkvercomp {
 
 function curlvercomp {
     EXIST="$1"
-    CURRENT=$(wget -cqO- https://curl.haxx.se/download/ | grep "xz<" | cut -d '"' -f 8 | sed 's/[a-z-]//g' | sed 's/..$//g')
+    CURRENT=$(wget -cqO- https://curl.haxx.se/download/ | grep "xz<" | cut -d '"' -f 8 | sed 's/[a-z-]//g' | sed 's/..$//g' | tail -n 1)
 
     vercomp "curl" $EXIST $CURRENT
 }

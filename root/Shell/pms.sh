@@ -14,6 +14,8 @@ function vimup {
                    rm /usr/share/doc/vim-${pkgvere}
                    ln -sv ../vim/vim80/doc /usr/share/doc/vim-${pkgver}
               popd
+
+              rm -rf vim*
          popd
     fi
 }

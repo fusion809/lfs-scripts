@@ -5,7 +5,7 @@ function vimup {
          printf "Vim is up-to-date!"
     else
          pushd /sources
-              wget -cqO- https://github.com/vim/vim/archive/${pkgver}.tar.gz | tar xz
+              wget -cqO- https://github.com/vim/vim/archive/v${pkgver}.tar.gz | tar xz
               pushd vim*
                    echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
                    ./configure --prefix=/usr

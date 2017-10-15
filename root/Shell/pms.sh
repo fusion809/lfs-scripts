@@ -22,7 +22,7 @@ function vimup {
 
 function linup {
     pkgver=$(wget -cqO- https://www.kernel.org/ | grep "\.tar\.xz" | head -n 1 | cut -d '"' -f 2 | tail -n 1 | cut -d '-' -f 2 | sed 's/\.tar\.xz//g')
-    pkgvere=$(ls /lib/modules/* -ld | tail -n 1 | cut -d ' ' -f 10 | cut -d '/' -f 4)
+    pkgvere=$(ls /lib/modules/* -ld | tail -n 1 | cut -d ' ' -f 9 | cut -d '/' -f 4)
 
     if [[ $pkgver == $pkgvere ]]; then
          printf "The Linux kernel is up-to-date!"

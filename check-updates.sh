@@ -13,7 +13,7 @@ BINUTILS="2.29.1" # Updated
 BISON="3.0.4"
 BLFS="20170731"
 BZIP2="1.0.6"
-CHECK="0.11.0"
+#CHECK="0.11.0"
 COREUTILS="8.28"
 CURL="7.56.0"
 DBUS="1.10.24" # Updated
@@ -23,7 +23,7 @@ DIFFUTILS="3.6"
 E2FSPROGS="1.43.7" # Updated
 EUDEV="3.2.4" # Updated
 EXPAT="2.2.4" # Updated
-EXPECT="5.45"
+#EXPECT="5.45"
 FILE="5.32" # Updated
 FINDUTILS="4.6.0"
 FLEX="2.6.4"
@@ -98,7 +98,7 @@ gnuvercomp binutils $BINUTILS
 gnuvercomp bison $BISON
 blfsvercomp $BLFS
 bzip2vercomp $BZIP2
-checkvercomp $CHECK
+#checkvercomp $CHECK
 curlvercomp $CURL
 gnuvercomp coreutils $COREUTILS
 dbusvercomp $DBUS
@@ -108,7 +108,7 @@ gnuvercomp $DIFFUTILS
 sfvercomp e2fsprogs $E2FSPROGS
 eudevvercomp $EUDEV
 sfvercomp expat $EXPAT
-expectvercomp $EXPECT
+#expectvercomp $EXPECT
 filevercomp $FILE
 findutilsvercomp $FINDUTILS
 flexvercomp $FLEX

@@ -118,6 +118,11 @@ function cds {
 function srcs {
 	du -h --max-depth=0 /sources/* | sort -h
 }
+
+function ugrub {
+	grub-mkconfig -o /boot/grub/grub.cfg
+}
+
 for i in ~/Shell/*.sh
 do
 	. "$i"

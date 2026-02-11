@@ -110,9 +110,22 @@ function vzsh {
 	vim $HOME/.zshrc
 }
 
+function cdls {
+	cd $HOME/lfs-scripts/$1
+}
+
 function cds {
 	cd /sources/$1
 }
+
+function srcs {
+	sudo du -h --max-depth=0 /sources/* | sort -h
+}
+
+function ugrub {
+	sudo grub-mkconfig -o /boot/grub/grub.cfg
+}
+
 for i in $HOME/Shell/*.sh
 do
   . "$i"

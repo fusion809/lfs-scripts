@@ -113,15 +113,6 @@ function vzsh {
 function cdlfs {
 	cd $HOME/lfs-scripts/$1
 }
-
-function cds {
-	cd /sources/$1
-}
-
-function cdsa {
-	cds "archives/$1"
-}
-
 function srcs {
 	sudo du -h --max-depth=0 /sources/* | sort -h
 }
@@ -139,3 +130,13 @@ for i in $HOME/Shell/*.sh
 do
   . "$i"
 done
+
+function cds {
+	cd /sources/$1
+}
+
+function cdsa {
+	cds "archives/$1"
+}
+
+

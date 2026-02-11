@@ -113,6 +113,7 @@ function vzsh {
 
 export SRC="/sources"
 export ARC="$SRC/archives"
+export LFS="/home/fusion809/lfs-scripts"
 function cds {
 	cd $SRC/$1
 }
@@ -122,7 +123,7 @@ function cda {
 }
 
 function srcs {
-	du -h --max-depth=0 /sources/* | sort -h
+	du -h --max-depth=0 $SRC/* | sort -h
 }
 
 function ugrub {

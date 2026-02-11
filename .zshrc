@@ -110,13 +110,11 @@ function vzsh {
 	vim $HOME/.zshrc
 }
 
-function cdlfs {
-	cd $HOME/lfs-scripts/$1
-}
-function srcs {
-	sudo du -h --max-depth=0 /sources/* | sort -h
-}
+export LFS="$HOME/lfs-scripts"
 
+function cdlfs {
+	cd $LFS/$1
+}
 function ugrub {
 	sudo grub-mkconfig -o /boot/grub/grub.cfg
 }
@@ -133,6 +131,10 @@ done
 
 export SRC="/sources"
 export ARC="$SRC/archives"
+
+function srcs {
+	sudo du -h --max-depth=0 $SRC/* | sort -h
+}
 
 function cds {
 	cd $SRC/$1

@@ -110,7 +110,7 @@ function vzsh {
 	vim $HOME/.zshrc
 }
 
-function cdls {
+function cdlfs {
 	cd $HOME/lfs-scripts/$1
 }
 

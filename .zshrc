@@ -70,7 +70,7 @@ ZSH_THEME="hnixos"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-history-substring-search zsh-syntax-highlighting zsh-autosuggestions)
+plugins=(git zsh-history-substring-search zsh-syntax-highlighting zsh-autosuggestions vi-mode)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -118,6 +118,10 @@ function cds {
 	cd /sources/$1
 }
 
+function cdsa {
+	cds "archives/$1"
+}
+
 function srcs {
 	sudo du -h --max-depth=0 /sources/* | sort -h
 }
@@ -126,6 +130,11 @@ function ugrub {
 	sudo grub-mkconfig -o /boot/grub/grub.cfg
 }
 
+ver=$(wget -cqO- https://www.linuxfromscratch.org/lfs/view/systemd/index.html | grep -i "version" | sed 's/^\s*//g' | cut -d ' ' -f 2 | sed 's/-systemd//g')
+
+if [[ $ver != $(cat /etc/os-release | grep VERSION_ID | cut -d '"' -f 2) ]]; then
+	printf "New update to LFS manual is out."
+fi
 for i in $HOME/Shell/*.sh
 do
   . "$i"

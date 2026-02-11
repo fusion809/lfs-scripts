@@ -115,6 +115,10 @@ function cds {
 	cd /sources/$1
 }
 
+function cdsa {
+	cds "archives/$1"
+}
+
 function srcs {
 	du -h --max-depth=0 /sources/* | sort -h
 }

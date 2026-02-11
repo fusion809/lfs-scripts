@@ -111,12 +111,14 @@ function vzsh {
 	vim $HOME/.zshrc
 }
 
+export SRC="/sources"
+export ARC="$SRC/archives"
 function cds {
-	cd /sources/$1
+	cd $SRC/$1
 }
 
-function cdsa {
-	cds "archives/$1"
+function cda {
+	cd $ARC/$1
 }
 
 function srcs {

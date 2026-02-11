@@ -113,7 +113,7 @@ function vzsh {
 function cds {
 	cd /sources/$1
 }
-for i in $HOME/Shell/{01,02,03,05}*.sh
+for i in $HOME/Shell/*.sh
 do
   . "$i"
 done

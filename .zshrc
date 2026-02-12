@@ -145,7 +145,7 @@ function cda {
 }
 
 function os-release {
-	cat /etc/os-release
+	cat /etc/os-release | grep "PRETTY_NAME" | cut -d '"' -f 2
 }
 
 alias os_info=os-release

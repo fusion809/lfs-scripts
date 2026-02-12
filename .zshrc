@@ -144,4 +144,9 @@ function cda {
 	cd $ARC/$1
 }
 
+function os-release {
+	cat /etc/os-release
+}
 
+alias os_info=os-release
+alias os-info=os-release

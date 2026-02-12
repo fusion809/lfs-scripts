@@ -148,5 +148,9 @@ function os-release {
 	cat /etc/os-release | grep "PRETTY_NAME" | cut -d '"' -f 2
 }
 
+function upos {
+	upver=$(wget -cqO- https://www.linuxfromscratch.org/lfs/view/systemd/index.html | grep "Version" | sed 's/^\s*//g' | cut -d ' ' -f 2 | sed 's/-systemd//g')
+	sudo sed -i -E "s|r[0-9]{2,}\.[0-9]-[0-9]+|$upver|g" /etc/os-release /etc/lfs-release /etc/lsb-release
+}
 alias os_info=os-release
 alias os-info=os-release

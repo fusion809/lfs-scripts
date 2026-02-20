@@ -154,3 +154,22 @@ function upos {
 }
 alias os_info=os-release
 alias os-info=os-release
+
+function download {
+	unset DOWNLOAD_x86_64
+	source *.info
+	if [[ -n $DOWNLOAD_x86_64 ]]; then
+		echo "x86_64!"
+		URL=$(cat *.info | grep DOWNLOAD_x86_64 | cut -d '"' -f 2)
+	else
+		echo "Not x86_64!"
+		URL=$(cat *.info | grep DOWNLOAD | cut -d '"' -f 2)
+	fi
+	echo "URL=$URL"
+	wget -c $URL
+}
+
+export XORG_PREFIX="/usr"
+export XORG_CONFIG="--prefix=/usr"
+export ZSH_HIGHLIGHT_STYLES[comment]="fg=cyan,dimmed"
+export PATH=$PATH:/opt/rustc/bin

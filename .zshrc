@@ -173,3 +173,7 @@ export XORG_PREFIX="/usr"
 export XORG_CONFIG="--prefix=/usr"
 export ZSH_HIGHLIGHT_STYLES[comment]="fg=cyan,dimmed"
 export PATH=$PATH:/opt/rustc/bin:$HOME/firefox
+
+function plot {
+	systemd-analyze plot > plot-$(date +"%R:%S_%d-%m-%y").svg
+}

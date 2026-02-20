@@ -135,7 +135,7 @@ do
 	. "$i"
 done
 
-function strip {
+function strip_system {
 save_usrlib="$(cd /usr/lib; ls ld-linux*[^g])
              libc.so.6
              libthread_db.so.1

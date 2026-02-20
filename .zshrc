@@ -173,7 +173,14 @@ export XORG_PREFIX="/usr"
 export XORG_CONFIG="--prefix=/usr"
 export ZSH_HIGHLIGHT_STYLES[comment]="fg=cyan,dimmed"
 export PATH=$PATH:/opt/rustc/bin:$HOME/firefox
-
+export timestamp=$(uptime -s)
+if ! [[ -d $HOME/plots ]]; then
+	mkdir $HOME/plots
+fi
 function plot {
-	systemd-analyze plot > plot-$(date +"%R:%S_%d-%m-%y").svg
+	systemd-analyze plot > $HOME/plots/$timestamp.svg
 }
+
+if ! [[ -f $HOME/plots/$timestamp.svg ]]; then
+	plot
+fi

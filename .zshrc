@@ -198,7 +198,12 @@ function cdps {
 }
 
 function shplot {
-	firefox $HOME/plots/$timestamp.svg
+	if [[ -n $1 ]] && [[ $1 != "1" ]]; then
+		file=$HOME/plots/"$(ls $HOME/plots | grep -v "$timestamp" | tail -n "$1" | head -n 1)"
+	else
+		file="$HOME/plots/$timestamp.svg"
+	fi
+	firefox "$file"
 }
 
 alias show_plot=shplot

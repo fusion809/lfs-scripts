@@ -4,7 +4,7 @@ set output "/home/fusion809/lfs-scripts/boots_hist.png"
 set title "Linux From Scratch boot time distribution"
 set xlabel "Boot time (seconds)"
 set lmargin 13
-set ylabel "Frequency" rotate by 0 offset -1,0
+set ylabel "Frequency" rotate by 0 offset -2,0
 
 set style fill solid 0.8
 set boxwidth 0.5

@@ -203,7 +203,7 @@ function shplot {
 	else
 		file="$HOME/plots/$timestamp.svg"
 	fi
-	firefox "$file"
+	eog "$file"
 }
 
 alias show_plot=shplot
@@ -354,7 +354,7 @@ function plot_boot_times {
 		-e "s|boot time distribution|boot time distribution as of ${timestamp}.|g" ~/lfs-scripts/hist.gnuplot > ~/lfs-scripts/hist.tmp.gnuplot
 	gnuplot ~/lfs-scripts/hist.tmp.gnuplot
 	rm ~/lfs-scripts/hist.tmp.gnuplot
-	firefox ~/lfs-scripts/boots_hist.png
+	eog ~/lfs-scripts/boots_hist.png
 }
 
 alias pbts=plot_boot_times

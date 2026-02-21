@@ -15,20 +15,34 @@ bin(x,width) = width*floor(x/width)
 # Get data stats
 stats "/home/fusion809/lfs-scripts/boots.dat" nooutput
 
-# Add padding (adjust multipliers if desired)
+count  = STATS_records
+mean   = STATS_mean
+median = STATS_median
+
 xmin = STATS_min - binwidth
 xmax = STATS_max + binwidth
 
-# Estimate max frequency for y padding
 set table $hist
 plot "/home/fusion809/lfs-scripts/boots.dat" using (bin($1,binwidth)):(1.0) smooth freq
 unset table
 
 stats $hist using 2 nooutput
-ymax = STATS_max * 1.2   # 20% vertical padding
+ymax = STATS_max * 1.1
 
 set xrange [xmin:xmax]
 set yrange [0:ymax]
 
+set label 1 sprintf("Count: %d", count) at graph 0.98,0.95 right
+# Vertical lines
+# Vertical lines
+set arrow 1 from mean, graph 0 to mean, graph 1 nohead lw 3
+set arrow 2 from median, graph 0 to median, graph 1 nohead lw 3 dt 2
+
+# Place labels slightly below top of plot
+set label 2 sprintf("Mean: %.2f s", mean) \
+    at mean, graph 0.95 left
+
+set label 3 sprintf("Median: %.2f s", median) \
+    at median, graph 0.95 right
 plot "/home/fusion809/lfs-scripts/boots.dat" using (bin($1,binwidth)):(1.0) \
      smooth freq with boxes notitle

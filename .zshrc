@@ -345,7 +345,7 @@ function plot_boot_times {
 | sed 's/.*= //g' \
 > boots.dat
 	sed -e "s|Linux From Scratch|$(os-release)|g" \
-		-e "s|boot time distribution|boot time distribution as of $timestamp|g" ~/lfs-scripts/hist.gnuplot > ~/lfs-scripts/hist.tmp.gnuplot
+		-e "s|boot time distribution|boot time distribution as of $timestamp.|g" ~/lfs-scripts/hist.gnuplot > ~/lfs-scripts/hist.tmp.gnuplot
 	gnuplot ~/lfs-scripts/hist.tmp.gnuplot
 	rm ~/lfs-scripts/hist.tmp.gnuplot
 	firefox ~/lfs-scripts/boots_hist.png

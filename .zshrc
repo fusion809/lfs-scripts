@@ -196,3 +196,9 @@ function cdp {
 function cdps {
 	cd ~/Screenshots
 }
+
+function shplot {
+	firefox $HOME/plots/$timestamp.svg
+}
+
+alias show_plot=shplot

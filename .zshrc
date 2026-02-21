@@ -216,6 +216,13 @@ function boot_times {
 | sort -n
 }
 
+function boot_time {
+	cat ~/plots/$timestamp.svg \
+| grep kernel \
+| grep user \
+| sed 's/.*= //g'
+}
+
 function avg_boot_time {
 	boot_times | awk '{sum+=$1; n++} END {if(n>0) print sum/n}'
 }

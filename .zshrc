@@ -207,3 +207,29 @@ function shplot {
 }
 
 alias show_plot=shplot
+
+function boot_times {
+	cat ~/plots/*.svg \
+| grep kernel \
+| grep user \
+| sed 's/.*= //g' \
+| sort -n
+}
+
+function avg_boot_time {
+	boot_times | awk '{sum+=$1; n++} END {if(n>0) print sum/n}'
+}
+
+function med_boot_time {
+	boot_times \
+| awk '
+{
+    a[NR]=$1
+}
+END {
+    if (NR % 2 == 1)
+        print a[(NR+1)/2]
+    else
+        print (a[NR/2] + a[NR/2+1]) / 2
+}'
+}

@@ -188,3 +188,11 @@ fi
 function vsb {
 	vim *.SlackBuild
 }
+
+function cdp {
+	cd ~/plots
+}
+
+function cdps {
+	cd ~/Screenshots
+}

@@ -1,2 +1,4 @@
 .*.swp
+*.png
+*.dat
 wget-list

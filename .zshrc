@@ -270,6 +270,8 @@ END {
 }'
 }
 
+alias sdbt=sd_boot_time
+
 function iqr_boot_time {
 	grep kernel ~/plots/*.svg \
 | grep user \
@@ -299,6 +301,8 @@ END {
     print q3 - q1
 }'
 }
+
+alias ibt=iqr_boot_time
 
 function stat_boot_time {
 	grep kernel ~/plots/*.svg \
@@ -339,6 +343,8 @@ END {
 }'
 }
 
+alias sbt=stat_boot_time
+
 function plot_boot_times {
 	grep kernel ~/plots/*.svg \
 | grep user \
@@ -350,3 +356,5 @@ function plot_boot_times {
 	rm ~/lfs-scripts/hist.tmp.gnuplot
 	firefox ~/lfs-scripts/boots_hist.png
 }
+
+alias pbts=plot_boot_times

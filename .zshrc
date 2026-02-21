@@ -184,3 +184,7 @@ function plot {
 if ! [[ -f $HOME/plots/$timestamp.svg ]]; then
 	plot
 fi
+
+function vsb {
+	vim *.SlackBuild
+}

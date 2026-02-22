@@ -358,3 +358,6 @@ function plot_boot_times {
 }
 
 alias pbts=plot_boot_times
+
+export QT6PREFIX=/opt/qt6
+

@@ -172,7 +172,7 @@ function download {
 export XORG_PREFIX="/usr"
 export XORG_CONFIG="--prefix=/usr"
 export ZSH_HIGHLIGHT_STYLES[comment]="fg=cyan,dimmed"
-export PATH=$PATH:/opt/rustc/bin:$HOME/firefox
+export PATH=$PATH:/opt/rustc/bin:/opt/jdk/bin
 export timestamp=$(uptime -s)
 if ! [[ -d $HOME/plots ]]; then
 	mkdir $HOME/plots
@@ -361,3 +361,12 @@ alias pbts=plot_boot_times
 
 export QT6PREFIX=/opt/qt6
 
+
+# >>> juliaup initialize >>>
+
+# !! Contents within this block are managed by juliaup !!
+
+path=('/home/fusion809/.juliaup/bin' $path)
+export PATH
+
+# <<< juliaup initialize <<<

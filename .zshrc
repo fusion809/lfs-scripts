@@ -371,3 +371,6 @@ path=('/home/fusion809/.juliaup/bin' $path)
 export PATH
 
 # <<< juliaup initialize <<<
+function clipf {
+	cat "$@" | wl-copy
+}

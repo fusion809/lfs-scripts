@@ -39,10 +39,13 @@ set arrow 1 from mean, graph 0 to mean, graph 1 nohead lw 3
 set arrow 2 from median, graph 0 to median, graph 1 nohead lw 3 dt 2
 
 # Place labels slightly below top of plot
-set label 2 sprintf("Mean: %.2f s", mean) \
-    at mean, graph 0.95 left
-
-set label 3 sprintf("Median: %.2f s", median) \
-    at median, graph 0.95 right
+offset=(xmax-xmin)/xmax*0.02
+if (mean < median) {
+    set label 2 sprintf("Mean: %.2f s", mean)   at mean-offset,   graph 0.95 right
+    set label 3 sprintf("Median: %.2f s", median) at median+offset, graph 0.95 left
+} else {
+    set label 2 sprintf("Mean: %.2f s", mean)   at mean-offset,   graph 0.95 left
+    set label 3 sprintf("Median: %.2f s", median) at median+offset, graph 0.95 right
+}
 plot "/home/fusion809/lfs-scripts/boots.dat" using (bin($1,binwidth)):(1.0) \
      smooth freq with boxes notitle

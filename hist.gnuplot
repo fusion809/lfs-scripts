@@ -7,13 +7,11 @@ set lmargin 13
 set ylabel "Frequency" rotate by 0 offset -2,0
 
 set style fill solid 0.8
-set boxwidth 0.5
-
-binwidth = 0.5
-bin(x,width) = width*floor(x/width)
-
 # Get data stats
 stats "/home/fusion809/lfs-scripts/boots.dat" nooutput
+binwidth = (STATS_max-STATS_min)/7
+set boxwidth binwidth * 0.9
+bin(x,width) = width*floor(x/width)
 
 count  = STATS_records
 mean   = STATS_mean

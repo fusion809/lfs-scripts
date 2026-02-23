@@ -172,7 +172,8 @@ function download {
 export XORG_PREFIX="/usr"
 export XORG_CONFIG="--prefix=/usr"
 export ZSH_HIGHLIGHT_STYLES[comment]="fg=cyan,dimmed"
-export PATH=$PATH:/opt/rustc/bin:/opt/jdk/bin
+export PATH=$PATH:/opt/rustc/bin:/opt/jdk/bin:/opt/qt6/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/rustc/lib:/opt/jdk/lib:/opt/qt6/lib
 export timestamp=$(uptime -s)
 if ! [[ -d $HOME/plots ]]; then
 	mkdir $HOME/plots

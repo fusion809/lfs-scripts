@@ -374,3 +374,11 @@ export PATH
 function clipf {
 	cat "$@" | wl-copy
 }
+
+function pip_update {
+	sudo pip3 install --upgrade pyparsing attrs numpy sphinx pyqt-builder pyopengl sip pyqt6-sip
+}
+
+function cdlfp {
+	cd ~/lfs_packaging/$1
+}

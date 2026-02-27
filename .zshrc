@@ -394,3 +394,7 @@ linesno=$(echo $lines | wc -l)
 function percPlasm {
 	R -q -e "($(echo $lines | grep -B 100 "$1" | wc -l)-1)/$linesno" | grep "\[1\] " | cut -d ' ' -f 2
 }
+
+function vsd {
+	sudo vim /etc/sddm.conf
+}

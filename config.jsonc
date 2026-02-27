@@ -40,7 +40,10 @@
 	    "type": "terminal",
 	    "key": " "
     },
-    "terminalfont",
+    {
+	    "type": "terminalfont",
+	    "key": " "
+    },
     {
 	    "type": "display",
 	    "key": " "
@@ -53,10 +56,22 @@
 	    "type": "wm",
 	    "key": " "
     },
-    "wmtheme",
-    "theme",
-    "icons",
-    "font",
+    {
+	    "type": "wmtheme",
+	    "key": "󱂬 "
+    },
+    {
+	    "type": "theme",
+	    "key": " "
+    },
+    {
+	    "type": "icons",
+	    "key": " "
+    },
+    {
+	    "type": "font",
+	    "key": " "
+    },
     "cursor",
    // "cpu",
     { 

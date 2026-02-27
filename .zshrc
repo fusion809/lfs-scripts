@@ -355,7 +355,12 @@ function plot_boot_times {
 		-e "s|boot time distribution|boot time distribution as of ${timestamp}.|g" ~/lfs-scripts/hist.gnuplot > ~/lfs-scripts/hist.tmp.gnuplot
 	gnuplot ~/lfs-scripts/hist.tmp.gnuplot
 	rm ~/lfs-scripts/hist.tmp.gnuplot
-	eog ~/lfs-scripts/boots_hist.png
+	if [[ $XDG_CURRENT_DESKTOP == "KDE" ]]; then
+		IMAGE_EDITOR=gwenview
+	elif [[ $XDG_CURRENT_DESKTOP == "GNOME" ]]; then
+		IMAGE_EDITOR=eog
+	fi
+	$IMAGE_EDITOR ~/lfs-scripts/boots_hist.png
 }
 
 alias pbts=plot_boot_times
@@ -381,4 +386,11 @@ function pip_update {
 
 function cdlfp {
 	cd ~/lfs_packaging/$1
+}
+
+lines=$(cat /sources/archives/plasma-6.6.1.md5 | grep -v "^#")
+linesno=$(echo $lines | wc -l)
+
+function percPlasm {
+	R -q -e "($(echo $lines | grep -B 100 "$1" | wc -l)-1)/$linesno" | grep "\[1\] " | cut -d ' ' -f 2
 }

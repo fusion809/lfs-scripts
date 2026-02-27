@@ -415,10 +415,16 @@ files <- list.files(plot_dir, pattern="\\.svg$", full.names=TRUE)
 # Function to extract boot time
 get_time <- function(f) {
   lines <- readLines(f, warn = FALSE)
-  line  <- lines[grepl("user", lines) & grepl("kernel", lines)]
-  as.numeric(sub(".*= ", "", line))
-}
 
+  line <- lines[grepl("Startup finished in", lines)]
+
+  if (length(line) == 0) return(NA_real_)
+
+  # Extract the final total time after '='
+  val <- sub(".*= ([0-9.]+)s.*", "\\1", line)
+
+  as.numeric(val)
+}
 times <- sapply(files, get_time)
 
 # Remove NAs
@@ -430,8 +436,9 @@ times <- times[valid]
 median_x <- median(times)
 iqr_x <- IQR(times)
 
-lower <- median_x - 1.5*iqr_x
-upper <- median_x + 1.5*iqr_x
+fac <- 2.5
+lower <- median_x - fac*iqr_x
+upper <- median_x + fac*iqr_x
 
 cat("n =", length(times), "\n")
 cat("median =", median_x, "\n")

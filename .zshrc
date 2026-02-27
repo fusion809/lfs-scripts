@@ -430,8 +430,8 @@ times <- times[valid]
 median_x <- median(times)
 iqr_x <- IQR(times)
 
-lower <- median_x - 2*iqr_x
-upper <- median_x + 2*iqr_x
+lower <- median_x - 1.5*iqr_x
+upper <- median_x + 1.5*iqr_x
 
 cat("n =", length(times), "\n")
 cat("median =", median_x, "\n")

@@ -377,7 +377,11 @@ export PATH
 
 # <<< juliaup initialize <<<
 function clipf {
-	cat "$@" | wl-copy
+	if [[ $XDG_SESSION_TYPE == "x11" ]]; then
+		xclip -sel clip < "$@"
+	else
+		cat "$@" | wl-copy
+	fi
 }
 
 function pip_update {
@@ -398,3 +402,65 @@ function percPlasm {
 function vsd {
 	sudo vim /etc/sddm.conf
 }
+
+function mvOutliers {
+R --vanilla -q <<'EOF'
+
+# Define directory explicitly
+plot_dir <- path.expand("~/plots")
+
+# Get full file paths
+files <- list.files(plot_dir, pattern="\\.svg$", full.names=TRUE)
+
+# Function to extract boot time
+get_time <- function(f) {
+  lines <- readLines(f, warn = FALSE)
+  line  <- lines[grepl("user", lines) & grepl("kernel", lines)]
+  as.numeric(sub(".*= ", "", line))
+}
+
+times <- sapply(files, get_time)
+
+# Remove NAs
+valid <- !is.na(times)
+files <- files[valid]
+times <- times[valid]
+
+# Statistics
+median_x <- median(times)
+iqr_x <- IQR(times)
+
+lower <- median_x - 2*iqr_x
+upper <- median_x + 2*iqr_x
+
+cat("n =", length(times), "\n")
+cat("median =", median_x, "\n")
+cat("IQR =", iqr_x, "\n")
+cat("lower bound =", lower, "\n")
+cat("upper bound =", upper, "\n")
+
+# Identify outliers
+outlier_idx <- which(times < lower | times > upper)
+outlier_files <- files[outlier_idx]
+
+cat("\nOutlier files:\n")
+print(outlier_files)
+
+# Create outliers directory inside ~/plots
+out_dir <- file.path(plot_dir, "outliers")
+dir.create(out_dir, showWarnings = FALSE)
+
+# Move files
+file.rename(outlier_files,
+            file.path(out_dir, basename(outlier_files)))
+
+cat("\nMoved", length(outlier_files), "files to", out_dir, "\n")
+
+EOF
+}
+
+read uptime_seconds _ < /proc/uptime
+
+if (( uptime_seconds <= 5 )); then
+	mvOutliers
+fi

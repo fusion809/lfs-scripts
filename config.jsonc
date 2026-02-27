@@ -72,8 +72,10 @@
 	    "type": "font",
 	    "key": " "
     },
-    "cursor",
-   // "cpu",
+    {
+	    "type": "cursor",
+	    "key": "󰇀 "
+    },
     { 
 	    "type": "cpu",
 	    "key": " "

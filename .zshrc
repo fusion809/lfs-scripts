@@ -220,7 +220,12 @@ function boot_times {
 alias bts=boot_times
 
 function boot_time {
-	cat ~/plots/$timestamp.svg \
+	if [[ -f ~/plots/$timestamp.svg ]]; then
+		filename=$HOME/plots/$timestamp.svg
+	else
+		filename=$HOME/plots/outliers/$timestamp.svg
+	fi
+	cat $filename \
 | grep kernel \
 | grep user \
 | sed 's/.*= //g'

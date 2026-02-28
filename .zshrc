@@ -530,3 +530,7 @@ done
 
 unset BIN LIB save_usrlib online_usrbin online_usrlib'
 }
+
+function cdlfa {
+	cd ~/lfs_apps/$1
+}

@@ -191,11 +191,11 @@ function vsb {
 }
 
 function cdp {
-	cd ~/plots
+	cd ~/plots/$1
 }
 
 function cdps {
-	cd ~/Screenshots
+	cd ~/Screenshots/$1
 }
 
 function shplot {

@@ -42,11 +42,11 @@ offset=(xmax-xmin)/xmax*0.02
 if (mean < median) {
     set label 2 sprintf("Mean: %.2f s", mean)   at mean-offset,   graph 0.95 right
     set label 3 sprintf("Median: %.2f s", median) at median+offset, graph 0.95 left
-    set label 4 sprintf("IQR: %.2f s", iqr) at median+iqr+offset, graph 0.95 left
+    set label 4 sprintf("IQR: %.2f s", iqr) at (xmax-xmin)*0.70+xmin, graph 0.95 left
 } else {
     set label 2 sprintf("Mean: %.2f s", mean)   at mean+offset,   graph 0.95 left
     set label 3 sprintf("Median: %.2f s", median) at median-offset, graph 0.95 right
-    set label 4 sprintf("IQR: %.2f s", iqr) at median+iqr+offset, graph 0.95 left
+    set label 4 sprintf("IQR: %.2f s", iqr) at (xmax-xmin)*0.7+xmin, graph 0.95 left
 }
 plot "/home/fusion809/lfs-scripts/boots.dat" using (bin($1,binwidth)):(1.0) \
      smooth freq with boxes notitle

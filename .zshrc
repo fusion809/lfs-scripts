@@ -397,10 +397,10 @@ function cdlfp {
 	cd ~/lfs_packaging/$1
 }
 
-lines=$(cat /sources/archives/plasma-6.6.1.md5 | grep -v "^#")
-linesno=$(echo $lines | wc -l)
-
 function percPlasm {
+	lines=$(cat /sources/archives/plasma*.md5 | grep -v "^#")
+	linesno=$(echo $lines | wc -l)
+
 	R -q -e "($(echo $lines | grep -B 100 "$1" | wc -l)-1)/$linesno" | grep "\[1\] " | cut -d ' ' -f 2
 }
 

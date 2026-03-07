@@ -397,6 +397,15 @@ function cdlfp {
 	cd ~/lfs_packaging/$1
 }
 
+alias cdlp=cdlfp
+
+function instLfp {
+	if [[ -d $HOME/lfs_packaging/$1 ]]; then
+		cdlp "$1"
+		./build.sh
+	fi
+}
+
 function percPlasm {
 	lines=$(cat /sources/archives/plasma*.md5 | grep -v "^#")
 	linesno=$(echo $lines | wc -l)

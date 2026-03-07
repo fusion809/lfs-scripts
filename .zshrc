@@ -548,3 +548,8 @@ unset BIN LIB save_usrlib online_usrbin online_usrlib'
 function cdlfa {
 	cd ~/lfs_apps/$1
 }
+
+# Wrapper for lfs_autobuild
+lfs_autobuild() {
+    curl -sL https://raw.githubusercontent.com/fusion809/NixOS-configs/25.11/shell/user/lfs-autobuild.sh | bash -s -- "$@"
+}

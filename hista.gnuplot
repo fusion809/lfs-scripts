@@ -9,7 +9,7 @@ set ylabel "Frequency" rotate by 0 offset -1.5,0
 set style fill solid 0.8
 # Get data stats
 stats "/home/fusion809/lfs-scripts/boots.dat" nooutput
-binwidth = (log10(STATS_max)-log10(STATS_min))/6
+binwidth = (log10(STATS_max)-log10(STATS_min))/20
 set boxwidth binwidth * 0.9
 set logscale x
 set logscale y
@@ -43,13 +43,13 @@ set arrow 2 from median, graph 0 to median, graph 1 nohead lw 3 dt 2
 # Place labels slightly below top of plot
 offset=(xmax-xmin)/xmax*0.02
 if (mean < median) {
-    set label 2 sprintf("Mean: %.2f s", mean)   at mean-offset,   graph 0.95 right
-    set label 3 sprintf("Median: %.2f s", median) at median+offset, graph 0.95 left
-    set label 4 sprintf("IQR: %.2f s", iqr) at (xmax-xmin)*0.2+xmin, graph 0.95 left
+    set label 2 sprintf("Mean: %.2fs", mean)   at mean-50*offset,   graph 0.95 right
+    set label 3 sprintf("Median: %.2fs", median) at median-offset, graph 0.95 right
+    set label 4 sprintf("IQR: %.2fs", iqr) at (xmax-xmin)*0.2+xmin, graph 0.95 left
 } else {
-    set label 2 sprintf("Mean: %.2f s", mean)   at mean+offset,   graph 0.95 left
-    set label 3 sprintf("Median: %.2f s", median) at median-offset, graph 0.95 right
-    set label 4 sprintf("IQR: %.2f s", iqr) at (xmax-xmin)*0.2+xmin, graph 0.95 left
+    set label 2 sprintf("Mean: %.2fs", mean)   at mean+50*offset,   graph 0.95 left
+    set label 3 sprintf("Median: %.2fs", median) at median+offset, graph 0.95 left
+    set label 4 sprintf("IQR: %.2fs", iqr) at (xmax-xmin)*0.2+xmin, graph 0.95 left
 }
 plot "/home/fusion809/lfs-scripts/boots.dat" using (logbin($1,binwidth)):(1.0) \
      smooth freq with boxes notitle

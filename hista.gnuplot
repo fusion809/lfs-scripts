@@ -9,7 +9,7 @@ set ylabel "Frequency" rotate by 0 offset -1.5,0
 set style fill solid 0.8
 # Get data stats
 stats "/home/fusion809/lfs-scripts/boots.dat" nooutput
-binwidth = (log10(STATS_max)-log10(STATS_min))/20
+binwidth = (log10(STATS_max)-log10(STATS_min))/101
 set boxwidth binwidth * 0.9
 set logscale x
 set logscale y

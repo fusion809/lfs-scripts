@@ -549,7 +549,22 @@ function cdlfa {
 	cd ~/lfs_apps/$1
 }
 
-# Wrapper for lfs_autobuild
+
+# lfs_autobuild: run the host's latest lfs-autobuild.sh (synced to ~/.lfs_autobuild.sh by the host)
 lfs_autobuild() {
-    curl -sL https://raw.githubusercontent.com/fusion809/NixOS-configs/25.11/shell/user/lfs-autobuild.sh | bash -s -- "$@"
+    bash ~/.lfs_autobuild.sh "$@"
+}
+
+missing_search() {
+    local pattern="${1:-not found}"
+
+    for i in /usr/lib/* /usr/bin/*; do
+        [[ -e "$i" ]] || continue
+
+        if file -L "$i" | grep -q 'ELF'; then
+            if ldd "$i" 2>/dev/null | grep -q "$pattern"; then
+                echo "$i"
+            fi
+        fi
+    done
 }

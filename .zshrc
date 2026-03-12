@@ -568,3 +568,32 @@ missing_search() {
         fi
     done
 }
+
+function version {
+	if [[ -n "$1" ]]; then
+		pushd $LFS/"$1"
+	fi
+	eval "$(grep '^version=' build.sh)"
+	echo "$version"
+	if [[ -n "$1" ]]; then
+		popd
+	fi
+}
+
+function check_version {
+	if [[ -n "$1" ]]; then
+		name="$1"
+		pushd $LFS/"$1"
+	else
+		name=$(pwd | sed 's|.*/||g')
+	fi
+	eval "$(grep '^version=' build.sh)"
+	inst_version="$(cat /var/lib/lfs-custom-packages/$name)"
+	if [[ "$inst_version" != "$version" ]]; then
+		echo "Installed version = $inst_version"
+		echo "Upstream version  = $version"
+	fi
+	if [[ -n "$1" ]]; then
+		popd
+	fi
+}

@@ -551,7 +551,7 @@ function cdlfa {
 
 
 # lfs_autobuild: run the host's latest lfs-autobuild.sh (synced to ~/.lfs_autobuild.sh by the host)
-lfs_autobuild() {
+autobuild() {
     bash ~/.lfs_autobuild.sh "$@"
 }
 
@@ -566,6 +566,14 @@ missing_search() {
                 echo "$i"
             fi
         fi
+    done
+}
+
+missing_search_fast() {
+    local pattern="${1:-not found}"
+    find /usr/lib /usr/bin -maxdepth 3 -type f -print0 |
+    while IFS= read -r -d '' f; do
+        ldd "$f" 2>/dev/null | grep -q "$pattern" && printf '%s\n' "$f"
     done
 }
 
@@ -596,4 +604,70 @@ function check_version {
 	if [[ -n "$1" ]]; then
 		popd
 	fi
+}
+
+source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
+source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
+
+cleanup_old_libraries_gpt() {
+find /usr/lib -type f -name "lib*.so.[0-9]*" ! -name "*.dbg" \
+| sort -V \
+| awk '
+{
+    base=$0
+    sub(/\.so\..*/, ".so", base)
+
+    if (prev_base && base != prev_base) {
+        for (i=1;i<prev_count;i++) print prev[i]
+        prev_count=0
+    }
+
+    prev[++prev_count]=$0
+    prev_base=base
+}
+END {
+    for (i=1;i<prev_count;i++) print prev[i]
+}' |
+while read -r i; do
+    echo "Checking $i"
+
+    deps=$(missing_search_fast "$i")
+
+    if [ "$(printf "%s" "$deps" | wc -l)" -eq 0 ]; then
+        echo "Removing unused library: $i"
+        sudo rm -f "$i"
+        continue
+    fi
+
+    echo "Dependent files:"
+    printf "%s\n" "$deps"
+
+    # Attempt to derive package names from dependent paths
+    pkgs=$(
+        printf "%s\n" "$deps" \
+        | xargs -n1 basename \
+        | sed -E 's/\.(so|so\..*|a|bin)$//' \
+        | sort -u
+    )
+    rm /tmp/*lfs_longindex.txt
+    wget -O /tmp/lfs_longindex.txt https://www.linuxfromscratch.org/lfs/view/systemd/longindex.html
+    wget -O /tmp/blfs_longindex.txt https://www.linuxfromscratch.org/blfs/view/systemd/longindex.html
+    for pkg in $pkgs; do
+        if grep -qi "^$pkg" /tmp/lfs_longindex.txt /tmp/blfs_longindex.txt 2>/dev/null; then
+            echo "Rebuilding package: $pkg"
+            autobuild "$pkg"
+	    printf "Delete old library/binary %s? [y/N]: " "$i"
+	    read -r ans
+	    case "$ans" in
+		    [yY]|[yY][eE][sS])
+			    echo "Removing $i"
+			    sudo rm -f -- "$i"
+			    ;;
+		    *)
+			    echo "Keeping $i"
+			    ;;
+	    esac
+        fi
+    done
+done
 }

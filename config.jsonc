@@ -46,7 +46,7 @@
     {
       "type": "command",
       "key": " ",
-      "text": "echo \" $(pip3 list | wc -l) 󰌽 $(ls /var/lib/book-packages | wc -l)  $(ls /var/lib/lfs-custom-packages | wc -l)\""
+      "text": "echo \" $(pip3 list | wc -l) 󰌽 $(ls /var/lib/book-packages | wc -l)  $(ls /var/lib/custom-packages | wc -l)\""
     },
     {
 	    "type": "display",

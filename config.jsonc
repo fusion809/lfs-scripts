@@ -31,7 +31,6 @@
 	    "type": "uptime",
 	    "key": " ",
     },
-    "packages",
     {
 	    "type": "shell",
 	    "key": " "
@@ -43,6 +42,23 @@
     {
 	    "type": "terminalfont",
 	    "key": " "
+    },
+    {
+      "type": "command",
+      "key": " ",
+      "text": "pip3 list | wc -l"
+    },
+
+    {
+      "type": "command",
+      "key": " ",
+      "text": "ls /var/lib/book-packages | wc -l"
+    },
+
+    {
+      "type": "command",
+      "key": " ",
+      "text": "ls /var/lib/lfs-custom-packages | wc -l"
     },
     {
 	    "type": "display",

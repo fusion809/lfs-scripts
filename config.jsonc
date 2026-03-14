@@ -45,20 +45,8 @@
     },
     {
       "type": "command",
-      "key": " ",
-      "text": "pip3 list | wc -l"
-    },
-
-    {
-      "type": "command",
-      "key": " ",
-      "text": "ls /var/lib/book-packages | wc -l"
-    },
-
-    {
-      "type": "command",
       "key": " ",
-      "text": "ls /var/lib/lfs-custom-packages | wc -l"
+      "text": "echo \" $(pip3 list | wc -l) 󰌽 $(ls /var/lib/book-packages | wc -l)  $(ls /var/lib/lfs-custom-packages | wc -l)\""
     },
     {
 	    "type": "display",

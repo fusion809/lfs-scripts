@@ -46,7 +46,7 @@
     {
       "type": "command",
       "key": " ",
-      "text": "echo \" $(pip3 list | wc -l) 󰌽 $(ls /var/lib/book-packages | wc -l)  $(ls /var/lib/custom-packages | wc -l)\""
+      "text": "pip=$(pip3 list | wc -l); book=$(ls /var/lib/book-packages | wc -l); custom=$(ls /var/lib/custom-packages | wc -l); total=$(($pip+$book+$custom)); echo \"$total ( $pip, 󰌽 $book,  $custom)\""
     },
     {
 	    "type": "display",

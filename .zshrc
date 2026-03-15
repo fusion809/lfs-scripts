@@ -124,11 +124,6 @@ ver=$(wget -cqO- https://www.linuxfromscratch.org/lfs/view/systemd/index.html | 
 if [[ $ver != $(cat /etc/os-release | grep VERSION_ID | cut -d '"' -f 2) ]]; then
 	printf "New update to LFS manual is out."
 fi
-for i in $HOME/Shell/*.sh
-do
-  . "$i"
-done
-
 export SRC="/sources"
 export ARC="$SRC/archives"
 

@@ -666,13 +666,14 @@ while read -r i; do
     done
 done
 }
-
+export CP=/var/lib/custom-packages
+export BP=/var/lib/book-packages
 function cdcp {
-	cd /var/lib/custom-packages/$1
+	cd $CP/$1
 }
 
 function cdbp {
-	cd /var/lib/book-packages/$1
+	cd $BP/$1
 }
 
 OSYS=$(cat /etc/os-release | grep "PRETTY_NAME" | cut -d '"' -f 2 | cut -d '/' -f 1)

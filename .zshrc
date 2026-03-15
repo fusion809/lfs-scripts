@@ -655,7 +655,7 @@ while read -r i; do
     for pkg in $pkgs; do
         if grep -qi "^$pkg" /tmp/lfs_longindex.txt /tmp/blfs_longindex.txt 2>/dev/null; then
             echo "Rebuilding package: $pkg"
-            autobuild "$pkg"
+            autobuild --upstream "$pkg"
 	    printf "Delete old library/binary %s? [y/N]: " "$i"
 	    read -r ans
 	    case "$ans" in

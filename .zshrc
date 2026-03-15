@@ -671,3 +671,11 @@ while read -r i; do
     done
 done
 }
+
+function cdcp {
+	cd /var/lib/custom-packages/$1
+}
+
+function cdbp {
+	cd /var/lib/book-packages/$1
+}

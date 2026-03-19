@@ -1057,5 +1057,6 @@ function list_fileless {
 }
 
 function perc_fileless {
-	Reval "$(echo $(list_fileless) | wc -l)/$(ls | wc -l)"
+	perc=$(Reval "(1-$(grep -L '/' * | wc -l)/$(ls | wc -l))*100")
+	echo "$perc% of packages have file lists"
 }

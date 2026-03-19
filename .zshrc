@@ -1020,3 +1020,34 @@ function pushf {
 		esac
 	fi
 }
+
+function git-changed-list {
+	git diff --name-only | awk '
+{
+    files[NR] = $0
+}
+END {
+    for (i = 1; i <= NR; i++) {
+        if (i == 1 && NR == 1)
+            printf "%s", files[i]
+        else if (i == NR)
+            printf " and %s", files[i]
+        else if (i == 1)
+            printf "%s", files[i]
+        else
+            printf ", %s", files[i]
+    }
+    print ""
+}'
+}
+
+function package_fl {
+	push "$(git-changed-list): file list"
+}
+
+function list_fileless {
+	if ! ( [[ $(pwd) == "/var/lib/book-packages" ]] || [[ $(pwd) == "/var/lib/custom-packages" ]] ) ; then
+		cdbp
+	fi	
+	grep -L '/' *
+}

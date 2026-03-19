@@ -401,11 +401,15 @@ function instLfp {
 	fi
 }
 
+function Reval {
+	R -q -e "$@" | grep "\[1\] " | cut -d ' ' -f 2
+}
+
 function percPlasm {
 	lines=$(cat /sources/archives/plasma*.md5 | grep -v "^#")
 	linesno=$(echo $lines | wc -l)
 
-	R -q -e "($(echo $lines | grep -B 100 "$1" | wc -l)-1)/$linesno" | grep "\[1\] " | cut -d ' ' -f 2
+	Reval "($(echo $lines | grep -B 100 "$1" | wc -l)-1)/$linesno"
 }
 
 function vsd {
@@ -1050,4 +1054,8 @@ function list_fileless {
 		cdbp
 	fi	
 	grep -L '/' *
+}
+
+function perc_fileless {
+	Reval "$(echo $(list_fileless) | wc -l)/$(ls | wc -l)"
 }

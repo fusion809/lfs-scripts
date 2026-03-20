@@ -1,6 +1,7 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
+
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -167,7 +168,7 @@ function download {
 export XORG_PREFIX="/usr"
 export XORG_CONFIG="--prefix=/usr"
 export ZSH_HIGHLIGHT_STYLES[comment]="fg=cyan,dimmed"
-export PATH=$PATH:/opt/rustc/bin:/opt/jdk/bin:/opt/qt6/bin:/opt/texlive/2025/bin/x86_64-linux
+export PATH=$PATH:/opt/rustc/bin:/opt/jdk/bin:/opt/qt6/bin:/opt/texlive/2025/bin/x86_64-linux:/sbin:/usr/sbin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/rustc/lib:/opt/jdk/lib:/opt/qt6/lib:/opt/texlive/2025/lib
 export timestamp=$(uptime -s)
 if ! [[ -d $HOME/plots ]]; then
@@ -570,7 +571,7 @@ missing_search() {
 
 missing_search_fast() {
     local pattern="${1:-not found}"
-    find /usr/lib /usr/bin /opt/qt6/bin /opt/qt6/lib /opt/rustc/bin /opt/rustc/lib /opt/texlive/2025/bin /opt/texlive/2025/lib -maxdepth 3 -type f -print0 |
+    find /usr/lib /usr/bin /opt/qt6/bin /opt/qt6/lib /opt/rustc/bin /opt/rustc/lib /opt/texlive/2025/bin /opt/texlive/2025/lib -maxdepth 5 -type f -print0 |
     while IFS= read -r -d '' f; do
         ldd "$f" 2>/dev/null | grep -q "$pattern" && printf '%s\n' "$f"
     done
@@ -1045,8 +1046,12 @@ END {
 }'
 }
 
-function package_fl {
-	push "$(git-changed-list): file list"
+function packages_push {
+	if ! [[ -n "$1" ]]; then
+		push "$(git-changed-list): file list"
+	else
+		push "$(git-changed-list): $1"
+	fi
 }
 
 function list_fileless {

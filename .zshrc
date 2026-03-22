@@ -571,7 +571,7 @@ missing_search() {
 
 missing_search_fast() {
     local pattern="${1:-not found}"
-    find /usr/lib /usr/bin /opt/qt6/bin /opt/qt6/lib /opt/rustc/bin /opt/rustc/lib /opt/texlive/2025/bin /opt/texlive/2025/lib -maxdepth 5 -type f -print0 |
+    find /usr/lib /usr/bin /opt/qt6/bin /opt/qt6/lib /opt/rustc/bin /opt/rustc/lib /opt/texlive/2025/bin /opt/texlive/2025/lib -maxdepth 3 -type f -print0 |
     while IFS= read -r -d '' f; do
         ldd "$f" 2>/dev/null | grep -q "$pattern" && printf '%s\n' "$f"
     done
@@ -1064,4 +1064,15 @@ function list_fileless {
 function perc_fileless {
 	perc=$(Reval "(1-$(grep -L '/' * | wc -l)/$(ls | wc -l))*100")
 	echo "$perc% of packages have file lists"
+}
+
+function pstart {
+	ps -eo pid,lstart | grep  "$1" | sed "s/\s*$1 //g"
+}
+
+function pelaps {
+	t1=$(date -d "$(pstart "$1")" +"%s")
+	t2=$(date +"%s")
+	s=$((t2-t1))
+	printf '%02d:%02d:%02d\n' $(($s/3600)) $((($s%3600)/60)) $(($s%60))
 }

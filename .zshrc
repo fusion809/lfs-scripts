@@ -610,67 +610,98 @@ source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
 source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
 
 cleanup_old_libraries_gpt() {
-find /usr/lib -type f -name "lib*.so.[0-9]*" ! -name "*.dbg" \
-| sort -V \
-| awk '
-{
-    base=$0
-    sub(/\.so\..*/, ".so", base)
+    # Safelist of critical libraries that should NEVER be deleted automatically
+    local safelist="libstdc++|libc\\.|libgcc_s|libm\\.|libpthread|libdl|librt|libcrypt|libutil|libnsl|libresolv|libz\\.|liblzma|libzstd|libcrypto|libssl"
+    
+    # Backup directory
+    local backup_dir="/var/tmp/lib_backup_\$(date +%Y%m%d_%H%M%S)"
+    
+    find /usr/lib -type f -name "lib*.so.[0-9]*" ! -name "*.dbg" ! -name "*-gdb.py" \
+    | sort -V \
+    | awk -v safe="\$safelist" '
+    {
+        # Skip if in safelist
+        if (\$0 ~ safe) next
+        
+        base=\$0
+        # Improved regex to only match .so followed by numbers (and dots)
+        sub(/\.so\.[0-9.]+\$/, ".so", base)
 
-    if (prev_base && base != prev_base) {
-        for (i=1;i<prev_count;i++) print prev[i]
-        prev_count=0
+        if (prev_base && base != prev_base) {
+            for (i=1;i<prev_count;i++) print prev[i]
+            prev_count=0
+        }
+
+        prev[++prev_count]=\$0
+        prev_base=base
     }
+    END {
+        for (i=1;i<prev_count;i++) print prev[i]
+    }' |
+    while read -r i; do
+        echo "------------------------------------------------"
+        echo "Checking \$i"
 
-    prev[++prev_count]=$0
-    prev_base=base
-}
-END {
-    for (i=1;i<prev_count;i++) print prev[i]
-}' |
-while read -r i; do
-    echo "Checking $i"
-
-    deps=$(missing_search_fast "$i")
-
-    if [ "$(printf "%s" "$deps" | wc -l)" -eq 0 ]; then
-        echo "Removing unused library: $i"
-        sudo rm -f "$i"
-        continue
-    fi
-
-    echo "Dependent files:"
-    printf "%s\n" "$deps"
-
-    # Attempt to derive package names from dependent paths
-    pkgs=$(
-        printf "%s\n" "$deps" \
-        | xargs -n1 basename \
-        | sed -E 's/\.(so|so\..*|a|bin)$//' \
-        | sort -u
-    )
-    rm /tmp/*lfs_longindex.txt
-    wget -O /tmp/lfs_longindex.txt https://www.linuxfromscratch.org/lfs/view/systemd/longindex.html
-    wget -O /tmp/blfs_longindex.txt https://www.linuxfromscratch.org/blfs/view/systemd/longindex.html
-    for pkg in $pkgs; do
-        if grep -qi "^$pkg" /tmp/lfs_longindex.txt /tmp/blfs_longindex.txt 2>/dev/null; then
-            echo "Rebuilding package: $pkg"
-            autobuild --upstream "$pkg"
-	    printf "Delete old library/binary %s? [y/N]: " "$i"
-	    read -r ans
-	    case "$ans" in
-		    [yY]|[yY][eE][sS])
-			    echo "Removing $i"
-			    sudo rm -f -- "$i"
-			    ;;
-		    *)
-			    echo "Keeping $i"
-			    ;;
-	    esac
+        # Ensure we don't delete if it is actually the target of a symlink in /usr/lib
+        if [ "\$(find /usr/lib -maxdepth 1 -type l -ls | grep -w "\$(basename "\$i")")" ]; then
+            echo "Skipping \$i: It is a target of a symbolic link."
+            continue
         fi
+
+        deps=\$(missing_search_fast "\$i")
+
+        if [ "\$(printf "%s" "\$deps" | wc -l)" -eq 0 ]; then
+            echo "Library appears unused: \$i"
+            printf "Move to backup %s? [y/N]: " "\$i"
+            read -r ans
+            case "\$ans" in
+                [yY]|[yY][eE][sS])
+                    sudo mkdir -p "\$backup_dir"
+                    echo "Moving \$i to \$backup_dir"
+                    sudo mv -vf "\$i" "\$backup_dir/"
+                    ;;
+                *)
+                    echo "Keeping \$i"
+                    ;;
+            esac
+            continue
+        fi
+
+        echo "Dependent files:"
+        printf "%s\n" "\$deps"
+
+        # Attempt to derive package names from dependent paths
+        pkgs=\$(
+            printf "%s\n" "\$deps" \
+            | xargs -n1 basename \
+            | sed -E "s/\\.(so|so\\..*|a|bin)\$//" \
+            | sort -u
+        )
+        rm -f /tmp/lfs_longindex.txt /tmp/blfs_longindex.txt
+        wget -O /tmp/lfs_longindex.txt https://www.linuxfromscratch.org/lfs/view/systemd/longindex.html
+        wget -O /tmp/blfs_longindex.txt https://www.linuxfromscratch.org/blfs/view/systemd/longindex.html
+        for pkg in \$pkgs; do
+            if grep -qi "^\$pkg" /tmp/lfs_longindex.txt /tmp/blfs_longindex.txt 2>/dev/null; then
+                echo "Rebuilding package: \$pkg"
+                autobuild --upstream "\$pkg"
+                printf "Delete old library %s? [y/N]: " "\$i"
+                read -r ans
+                case "\$ans" in
+                        [yY]|[yY][eE][sS])
+                                echo "Removing \$i"
+                                sudo rm -f -- "\$i"
+                                ;;
+                        *)
+                                echo "Keeping \$i"
+                                ;;
+                esac
+            fi
+        done
     done
-done
+    
+    [ -d "\$backup_dir" ] && echo "Old libraries backed up to \$backup_dir"
 }
+
 export CP=/var/lib/custom-packages
 export BP=/var/lib/book-packages
 function cdcp {

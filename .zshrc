@@ -571,7 +571,7 @@ missing_search() {
 
 missing_search_fast() {
     local pattern="${1:-not found}"
-    find /usr/lib /usr/bin /opt/qt6/bin /opt/qt6/lib /opt/rustc/bin /opt/rustc/lib /opt/texlive/2025/bin /opt/texlive/2025/lib -maxdepth 3 -type f -print0 |
+    find /usr/lib /usr/bin /opt/qt6/bin /opt/qt6/lib /opt/rustc/bin /opt/rustc/lib /opt/texlive/2025/bin /opt/texlive/2025/lib -type f -print0 |
     while IFS= read -r -d '' f; do
         ldd "$f" 2>/dev/null | grep -q "$pattern" && printf '%s\n' "$f"
     done

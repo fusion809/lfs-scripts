@@ -1128,3 +1128,13 @@ function pelaps {
 	s=$((t2-t1))
 	printf '%02d:%02d:%02d\n' $(($s/3600)) $((($s%3600)/60)) $(($s%60))
 }
+
+function loop_pelaps {
+	while ps ax | grep "$1" &> /dev/null;
+	do
+		dur=$(pelaps "$1")
+		echo "$1 has taken $dur..."
+		sleep 1
+	done
+	echo "Took a total of $dur for $1 to finish..."
+}

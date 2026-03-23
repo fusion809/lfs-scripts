@@ -610,96 +610,117 @@ source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
 source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
 
 cleanup_old_libraries_gpt() {
-    # Safelist of critical libraries that should NEVER be deleted automatically
-    local safelist="libstdc++|libc\\.|libgcc_s|libm\\.|libpthread|libdl|librt|libcrypt|libutil|libnsl|libresolv|libz\\.|liblzma|libzstd|libcrypto|libssl"
+    local dep_cache="/tmp/lfs_dep_cache.txt"
+    local pkg_cache="/tmp/lfs_pkg_cache.txt"
     
-    # Backup directory
-    local backup_dir="/var/tmp/lib_backup_\$(date +%Y%m%d_%H%M%S)"
+    echo "[LFS-AUTOBUILD] Generating dependency and package caches. This ensures accurate and fast cleanup..."
     
-    find /usr/lib -type f -name "lib*.so.[0-9]*" ! -name "*.dbg" ! -name "*-gdb.py" \
+    # 1. Generate system-wide dependency cache (File -> Shared Libs)
+    find /usr/bin /usr/lib /lib /opt -type f \( -executable -o -name "*.so*" \) 2>/dev/null | 
+    xargs -P$(nproc) -I{} sh -c "readelf -d '{}' 2>/dev/null | grep -q '(NEEDED)' && printf '%s: ' '{}' && readelf -d '{}' 2>/dev/null | grep '(NEEDED)' | sed -E 's/.*\[(.*)\].*/\1/' | tr '\n' ' ' && echo" > "$dep_cache"
+    
+    # 2. Generate package inventory mapping (File -> Package)
+    grep -r "^/" /var/lib/book-packages /var/lib/custom-packages 2>/dev/null | sed -E 's|/var/lib/[^/]+-packages/([^:]+):(.*)|\2:\1|' > "$pkg_cache"
+
+    echo "[LFS-AUTOBUILD] Caches generated. Evaluating system libraries..."
+
+    # 3. Identify old versions
+    local old_libs=($(find /usr/lib /lib -type f -name "lib*.so.[0-9]*" ! -name "*.dbg" ! -name "*-gdb.py" 2>/dev/null \
     | sort -V \
-    | awk -v safe="\$safelist" '
+    | awk '
     {
-        # Skip if in safelist
-        if (\$0 ~ safe) next
-        
-        base=\$0
-        # Improved regex to only match .so followed by numbers (and dots)
-        sub(/\.so\.[0-9.]+\$/, ".so", base)
-
+        base=$0
+        sub(/\.so\.[0-9.]+$/, ".so", base)
         if (prev_base && base != prev_base) {
-            for (i=1;i<prev_count;i++) print prev[i]
-            prev_count=0
+            for (i=1; i < prev_count; i++) print prev[i]
+            prev_count = 0
         }
-
-        prev[++prev_count]=\$0
-        prev_base=base
+        prev[++prev_count] = $0
+        prev_base = base
     }
     END {
-        for (i=1;i<prev_count;i++) print prev[i]
-    }' |
-    while read -r i; do
+        for (i=1; i < prev_count; i++) print prev[i]
+    }'))
+
+    if [ ${#old_libs[@]} -eq 0 ]; then
+        echo "No old library versions found to clean up."
+        return
+    fi
+
+    for i in "${old_libs[@]}"; do
         echo "------------------------------------------------"
-        echo "Checking \$i"
+        echo "Checking obsolete version: $(basename "$i")"
+        echo "Path: $i"
 
-        # Ensure we don't delete if it is actually the target of a symlink in /usr/lib
-        if [ "\$(find /usr/lib -maxdepth 1 -type l -ls | grep -w "\$(basename "\$i")")" ]; then
-            echo "Skipping \$i: It is a target of a symbolic link."
+        if [ -n "$(find /usr/lib /lib -maxdepth 1 -type l -ls 2>/dev/null | grep -w "$(basename "$i")")" ]; then
+            echo "Result: Skipping. Library is currently targeted by a symbolic link."
             continue
         fi
 
-        deps=\$(missing_search_fast "\$i")
+        # 4. FAST dependency check
+        local libname=$(basename "$i")
+        local deps=($(grep " $libname " "$dep_cache" | cut -d: -f1))
 
-        if [ "\$(printf "%s" "\$deps" | wc -l)" -eq 0 ]; then
-            echo "Library appears unused: \$i"
-            printf "Move to backup %s? [y/N]: " "\$i"
-            read -r ans
-            case "\$ans" in
-                [yY]|[yY][eE][sS])
-                    sudo mkdir -p "\$backup_dir"
-                    echo "Moving \$i to \$backup_dir"
-                    sudo mv -vf "\$i" "\$backup_dir/"
-                    ;;
-                *)
-                    echo "Keeping \$i"
-                    ;;
-            esac
+        if [ ${#deps[@]} -eq 0 ]; then
+            echo "Result: Unused. Deleting $i..."
+            sudo rm -f -- "$i"
             continue
         fi
 
-        echo "Dependent files:"
-        printf "%s\n" "\$deps"
+        echo "Status: Library has ${#deps[@]} remaining dependents."
+        echo "Example dependents: ${deps[@]:0:3} ..."
+        
+        # 5. Robust package identification using the inventory cache
+        local found_pkgs=()
+        for d in "${deps[@]}"; do
+            local p=$(grep "^$d:" "$pkg_cache" | cut -d: -f2)
+            [ -n "$p" ] && found_pkgs+=("$p")
+        done
+        
+        local pkgs=($(printf "%s\n" "${found_pkgs[@]}" | sort -u))
+        
+        if [ ${#pkgs[@]} -eq 0 ]; then
+            echo "Warning: No parent package found for ANY of the ${#deps[@]} dependents."
+            echo "Checking if we should keep $i for safety."
+            continue
+        fi
 
-        # Attempt to derive package names from dependent paths
-        pkgs=\$(
-            printf "%s\n" "\$deps" \
-            | xargs -n1 basename \
-            | sed -E "s/\\.(so|so\\..*|a|bin)\$//" \
-            | sort -u
-        )
-        rm -f /tmp/lfs_longindex.txt /tmp/blfs_longindex.txt
-        wget -O /tmp/lfs_longindex.txt https://www.linuxfromscratch.org/lfs/view/systemd/longindex.html
-        wget -O /tmp/blfs_longindex.txt https://www.linuxfromscratch.org/blfs/view/systemd/longindex.html
-        for pkg in \$pkgs; do
-            if grep -qi "^\$pkg" /tmp/lfs_longindex.txt /tmp/blfs_longindex.txt 2>/dev/null; then
-                echo "Rebuilding package: \$pkg"
-                autobuild --upstream "\$pkg"
-                printf "Delete old library %s? [y/N]: " "\$i"
-                read -r ans
-                case "\$ans" in
-                        [yY]|[yY][eE][sS])
-                                echo "Removing \$i"
-                                sudo rm -f -- "\$i"
-                                ;;
-                        *)
-                                echo "Keeping \$i"
-                                ;;
-                esac
+        echo "Identified parent packages to rebuild: ${pkgs[@]}"
+        
+        local rebuild_success=true
+        for pkg in "${pkgs[@]}"; do
+            echo "Action: Rebuilding $pkg (upstream) to switch to newer library..."
+            # Always use --upstream as requested by user
+            if ! autobuild --upstream --force "$pkg"; then
+                echo "Error: Failed to rebuild $pkg. Cannot delete $libname."
+                rebuild_success=false
+                break
             fi
         done
+
+        if [ "$rebuild_success" = true ]; then
+             echo "Verification: Re-checking dependencies for $libname after $pkg rebuilds..."
+             local remaining=0
+             for d in "${deps[@]}"; do
+                 if [ -e "$d" ] && readelf -d "$d" 2>/dev/null | grep -q "\[$libname\]"; then
+                      echo "Persistence: $d still depends on $libname"
+                      remaining=1
+                      break
+                 fi
+             done
+             
+             if [ $remaining -eq 0 ]; then
+                 echo "Final Action: All dependencies cleared. Deleting $i."
+                 sudo rm -f -- "$i"
+             else
+                 echo "Final Action: Keeping $i (binaries in $(echo ${pkgs[@]} | head -n 1) still linked)."
+             fi
+        else
+            echo "Final Action: Keeping $i (rebuilds incomplete or blocked)."
+        fi
     done
     
-    [ -d "\$backup_dir" ] && echo "Old libraries backed up to \$backup_dir"
+    rm -f "$dep_cache" "$pkg_cache"
 }
 
 export CP=/var/lib/custom-packages

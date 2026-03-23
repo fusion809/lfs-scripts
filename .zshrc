@@ -1184,3 +1184,93 @@ function pelaps_live {
     printf "\e[?25h"
     trap - INT
 }
+# Monitoring function for a single autobuild process
+function elaps_build {
+    local line=$(ps -eo pid,args | grep "autobuild.sh" | grep -v grep | head -n 1)
+    if [[ -z "$line" ]]; then
+        echo "Error: No active autobuild process found."
+        return 1
+    fi
+    
+    local pid=$(echo "$line" | awk '{print $1}')
+    # Get the package name (the last argument of the command line)
+    local pkg=$(echo "$line" | awk '{print $NF}')
+    
+    echo "------------------------------------------------"
+    echo "Currently building: $pkg (PID: $pid)"
+    pelaps_live "$pid"
+}
+
+# Monitoring function for a loop of builds (e.g. from cleanup)
+# Enhanced Monitoring function with summary on exit
+function cleanup_build_times {
+    echo "[LFS-MONITOR] Initializing tracking loop for autobuilds..."
+    echo "[LFS-MONITOR] A total summary will be displayed when you press Ctrl+C or all jobs finish."
+    
+    local monitored_pids=""
+    local -a summary_list
+    
+    # Optional logic to stop automatically if no autobuild found for e.g. 60s
+    local idle_count=0
+    local max_idle=20 # 20 * 3 seconds = 1 minute
+
+    # Trap to display summary on interrupt
+    trap '
+        echo -e "\n\n================================================"
+        echo "           BUILD DURATION SUMMARY"
+        echo "================================================"
+        if [ ${#summary_list[@]} -eq 0 ]; then
+            echo "No builds were completed during this session."
+        else
+            for entry in "${summary_list[@]}"; do
+                echo "$entry"
+            done
+        fi
+        echo "================================================"
+        trap - INT
+        return
+    ' INT
+
+    while true; do
+        # Find all current autobuild lines
+        local current_lines=$(ps -eo pid,args | grep "autobuild.sh" | grep -v grep)
+        
+        if [[ -z "$current_lines" ]]; then
+            ((idle_count++))
+            if [[ $idle_count -ge $max_idle && ${#monitored_pids} -gt 0 ]]; then
+                echo -e "\n[LFS-MONITOR] No further builds detected. Finishing tracking."
+                # Trigger the summary via kill or just call the summary logic
+                kill -s INT $$
+                return
+            fi
+        else
+            idle_count=0
+            while IFS= read -r line; do
+                [[ -z "$line" ]] && continue
+                
+                local pid=$(echo "$line" | awk '{print $1}')
+                local pkg=$(echo "$line" | awk '{print $NF}')
+                
+                # If we haven't monitored this PID yet
+                if [[ ! " $monitored_pids " =~ " $pid " ]]; then
+                    echo "------------------------------------------------"
+                    echo "Monitoring build of: $pkg (PID $pid)..."
+                    
+                    # Capture the final duration output from pelaps_live
+                    # pelaps_live prints the final duration with a newline
+                    local start_time=$(date +%s)
+                    pelaps_live "$pid"
+                    local end_time=$(date +%s)
+                    
+                    local elapsed=$((end_time - start_time))
+                    local duration_str=$(printf '%02d:%02d:%02d' $(($elapsed/3600)) $((($elapsed%3600)/60)) $(($elapsed%60)))
+                    
+                    summary_list+=("Package: $(printf '%-20s' "$pkg") | Duration: $duration_str")
+                    monitored_pids="$monitored_pids $pid"
+                fi
+            done <<< "$current_lines"
+        fi
+        
+        sleep 3
+    done
+}

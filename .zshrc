@@ -1138,3 +1138,49 @@ function loop_pelaps {
 	done
 	echo "Took a total of $dur for $1 to finish..."
 }
+
+function pelaps_live {
+    local pid_or_name="$1"
+    local start_str=$(pstart "$pid_or_name" | head -n 1)
+    
+    if [[ -z "$start_str" ]]; then
+        echo "No process matching '$pid_or_name' found."
+        return 1
+    fi
+    
+    local t1=$(date -d "$start_str" +"%s")
+    
+    # Trap to ensure cursor is restored on Ctrl+C
+    trap "printf '\e[?25h\n'; return" INT
+    
+    # Hide cursor
+    printf "\e[?25l"
+
+    while true; do
+        # Check if process is still alive
+        local alive=false
+        if [[ "$pid_or_name" =~ ^[0-9]+$ ]]; then
+            kill -0 "$pid_or_name" 2>/dev/null && alive=true
+        else
+            pgrep -f "$pid_or_name" >/dev/null 2>&1 && alive=true
+        fi
+        
+        local t2=$(date +"%s")
+        local s=$((t2-t1))
+        
+        # Print time with carriage return
+        printf "\r%02d:%02d:%02d" $(($s/3600)) $((($s%3600)/60)) $(($s%60))
+        
+        if [[ "$alive" == "false" ]]; then
+            # Print one last time and exit
+            printf "\n"
+            break
+        fi
+        
+        sleep 1
+    done
+    
+    # Restore cursor
+    printf "\e[?25h"
+    trap - INT
+}

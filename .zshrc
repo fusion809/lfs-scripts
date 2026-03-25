@@ -613,18 +613,20 @@ cleanup_old_libraries_gpt() {
     local dep_cache="/tmp/lfs_dep_cache.txt"
     local pkg_cache="/tmp/lfs_pkg_cache.txt"
     
-    echo "[LFS-AUTOBUILD] Generating dependency and package caches. This ensures accurate and fast cleanup..."
+    echo "[LFS-AUTOBUILD] Generating comprehensive dependency and package caches..."
     
-    # 1. Generate system-wide dependency cache (File -> Shared Libs)
+    # 1. Generate system-wide dependency cache (File -> Shared Lib SONAMEs)
+    # We store the SONAMEs that binaries link against.
     find /usr/bin /usr/lib /lib /opt -type f \( -executable -o -name "*.so*" \) 2>/dev/null | 
     xargs -P$(nproc) -I{} sh -c "readelf -d '{}' 2>/dev/null | grep -q '(NEEDED)' && printf '%s: ' '{}' && readelf -d '{}' 2>/dev/null | grep '(NEEDED)' | sed -E 's/.*\[(.*)\].*/\1/' | tr '\n' ' ' && echo" > "$dep_cache"
     
     # 2. Generate package inventory mapping (File -> Package)
+    # Ensure we catch ALL files by using a robust grep
     grep -r "^/" /var/lib/book-packages /var/lib/custom-packages 2>/dev/null | sed -E 's|/var/lib/[^/]+-packages/([^:]+):(.*)|\2:\1|' > "$pkg_cache"
 
-    echo "[LFS-AUTOBUILD] Caches generated. Evaluating system libraries..."
+    echo "[LFS-AUTOBUILD] Caches generated. Scanning libraries..."
 
-    # 3. Identify old versions
+    # 3. Identify old versions (everything but the latest for each base)
     local old_libs=($(find /usr/lib /lib -type f -name "lib*.so.[0-9]*" ! -name "*.dbg" ! -name "*-gdb.py" 2>/dev/null \
     | sort -V \
     | awk '
@@ -643,80 +645,87 @@ cleanup_old_libraries_gpt() {
     }'))
 
     if [ ${#old_libs[@]} -eq 0 ]; then
-        echo "No old library versions found to clean up."
+        echo "No old library versions detected."
         return
     fi
 
     for i in "${old_libs[@]}"; do
         echo "------------------------------------------------"
-        echo "Checking obsolete version: $(basename "$i")"
-        echo "Path: $i"
+        echo "Evaluating: $i"
 
+        # Check for symbolic link target protection
         if [ -n "$(find /usr/lib /lib -maxdepth 1 -type l -ls 2>/dev/null | grep -w "$(basename "$i")")" ]; then
-            echo "Result: Skipping. Library is currently targeted by a symbolic link."
+            echo "Result: Skipping (targeted by a symlink)."
             continue
         fi
 
-        # 4. FAST dependency check
-        local libname=$(basename "$i")
-        local deps=($(grep " $libname " "$dep_cache" | cut -d: -f1))
+        # 4. GET SONAME OF THE LIBRARY
+        # This is critical because binaries link against SONAME, not the full file name.
+        local soname=$(readelf -d "$i" 2>/dev/null | grep SONAME | sed -E 's/.*\[(.*)\].*/\1/')
+        [ -z "$soname" ] && soname=$(basename "$i")
+        
+        echo "SONAME: $soname"
+
+        # 5. Dependency check using SONAME
+        local deps=($(grep -F " $soname " "$dep_cache" | cut -d: -f1))
 
         if [ ${#deps[@]} -eq 0 ]; then
+            # Safe to delete ONLY if NO binaries link against this SONAME
             echo "Result: Unused. Deleting $i..."
             sudo rm -f -- "$i"
             continue
         fi
 
-        echo "Status: Library has ${#deps[@]} remaining dependents."
-        echo "Example dependents: ${deps[@]:0:3} ..."
+        echo "Status: Library ($soname) has ${#deps[@]} remaining dependents."
         
-        # 5. Robust package identification using the inventory cache
+        # 6. Comprehensive package identification
         local found_pkgs=()
         for d in "${deps[@]}"; do
             local p=$(grep "^$d:" "$pkg_cache" | cut -d: -f2)
-            [ -n "$p" ] && found_pkgs+=("$p")
+            if [ -n "$p" ]; then
+                 found_pkgs+=("$p")
+            else
+                 # If not in inventory, we MUST NOT delete the library.
+                 echo "Warning: Dependent binary $d is NOT recorded in any package inventory."
+                 echo "Result: Blocking deletion of $i for safety."
+                 continue 2
+            fi
         done
         
         local pkgs=($(printf "%s\n" "${found_pkgs[@]}" | sort -u))
+        echo "Packages requiring rebuild: ${pkgs[@]}"
         
-        if [ ${#pkgs[@]} -eq 0 ]; then
-            echo "Warning: No parent package found for ANY of the ${#deps[@]} dependents."
-            echo "Checking if we should keep $i for safety."
-            continue
-        fi
-
-        echo "Identified parent packages to rebuild: ${pkgs[@]}"
-        
+        # 7. Rebuild loop
         local rebuild_success=true
         for pkg in "${pkgs[@]}"; do
-            echo "Action: Rebuilding $pkg (upstream) to switch to newer library..."
-            # Always use --upstream as requested by user
+            echo "Action: Rebuilding $pkg (upstream) to transition off $soname..."
             if ! autobuild --upstream --force "$pkg"; then
-                echo "Error: Failed to rebuild $pkg. Cannot delete $libname."
+                echo "Error: Failed to rebuild $pkg. Aborting cleanup for $i."
                 rebuild_success=false
                 break
             fi
         done
 
         if [ "$rebuild_success" = true ]; then
-             echo "Verification: Re-checking dependencies for $libname after $pkg rebuilds..."
+             echo "Verification: Re-checking dependencies for $soname..."
              local remaining=0
              for d in "${deps[@]}"; do
-                 if [ -e "$d" ] && readelf -d "$d" 2>/dev/null | grep -q "\[$libname\]"; then
-                      echo "Persistence: $d still depends on $libname"
+                 # Check if the file still exists and still links to our SONAME
+                 if [ -f "$d" ] && readelf -d "$d" 2>/dev/null | grep -q "\[$soname\]"; then
+                      echo "Persistence: $d still linked to $soname."
                       remaining=1
                       break
                  fi
              done
              
              if [ $remaining -eq 0 ]; then
-                 echo "Final Action: All dependencies cleared. Deleting $i."
+                 echo "Final Action: All known dependents cleared. Deleting $i."
                  sudo rm -f -- "$i"
              else
-                 echo "Final Action: Keeping $i (binaries in $(echo ${pkgs[@]} | head -n 1) still linked)."
+                 echo "Final Action: Keeping $i (unmatched dependencies remain)."
              fi
         else
-            echo "Final Action: Keeping $i (rebuilds incomplete or blocked)."
+            echo "Final Action: Keeping $i (rebuilds failed)."
         fi
     done
     
@@ -1185,6 +1194,7 @@ function pelaps_live {
     trap - INT
 }
 # Monitoring function for a single autobuild process
+# Monitoring function for a single autobuild process
 function elaps_build {
     local line=$(ps -eo pid,args | grep "autobuild.sh" | grep -v grep | head -n 1)
     if [[ -z "$line" ]]; then
@@ -1194,7 +1204,7 @@ function elaps_build {
     
     local pid=$(echo "$line" | awk '{print $1}')
     # Get the package name (the last argument of the command line)
-    local pkg=$(echo "$line" | awk '{print $NF}')
+    local pkg=$(echo "$line" | grep -oP '(?<=autobuild\.sh\s)\S+')
     
     echo "------------------------------------------------"
     echo "Currently building: $pkg (PID: $pid)"
@@ -1202,19 +1212,50 @@ function elaps_build {
 }
 
 # Monitoring function for a loop of builds (e.g. from cleanup)
+function cleanup_build_times {
+    echo "Monitoring scheduled autobuilds (Press Ctrl+C to stop)..."
+    local monitored_pids=""
+    
+    while true; do
+        # Find all current autobuild lines
+        local current_lines=$(ps -eo pid,args | grep "autobuild.sh" | grep -v grep)
+        
+        while IFS= read -r line; do
+            [[ -z "$line" ]] && continue
+            
+            local pid=$(echo "$line" | awk '{print $1}')
+            local pkg=$(echo "$line" | grep -oP '(?<=autobuild\.sh\s)\S+')
+            
+            # If we haven't monitored this PID yet
+            if [[ ! " $monitored_pids " =~ " $pid " ]]; then
+                echo "------------------------------------------------"
+                echo "Monitoring build of: $pkg (PID $pid)..."
+                
+                # Start tracking the time live
+                pelaps_live "$pid"
+                
+                # Record it as monitored
+                monitored_pids="$monitored_pids $pid"
+            fi
+        done <<< "$current_lines"
+        
+        sleep 5
+    done
+}
+
+# Monitoring function for a loop of builds (e.g. from cleanup)
 # Enhanced Monitoring function with summary on exit
+# Fixed Monitoring function using actual process start time for summary
+# Fixed Monitoring function using actual process start time for summary
 function cleanup_build_times {
     echo "[LFS-MONITOR] Initializing tracking loop for autobuilds..."
-    echo "[LFS-MONITOR] A total summary will be displayed when you press Ctrl+C or all jobs finish."
+    echo "[LFS-MONITOR] Using actual process start times for all duration calculations."
     
     local monitored_pids=""
     local -a summary_list
-    
-    # Optional logic to stop automatically if no autobuild found for e.g. 60s
     local idle_count=0
-    local max_idle=20 # 20 * 3 seconds = 1 minute
+    local max_idle=20 
 
-    # Trap to display summary on interrupt
     trap '
         echo -e "\n\n================================================"
         echo "           BUILD DURATION SUMMARY"
@@ -1232,14 +1273,12 @@ function cleanup_build_times {
     ' INT
 
     while true; do
-        # Find all current autobuild lines
         local current_lines=$(ps -eo pid,args | grep "autobuild.sh" | grep -v grep)
         
         if [[ -z "$current_lines" ]]; then
             ((idle_count++))
-            if [[ $idle_count -ge $max_idle && ${#monitored_pids} -gt 0 ]]; then
+            if [[ $idle_count -ge $max_idle && -n "$monitored_pids" ]]; then
                 echo -e "\n[LFS-MONITOR] No further builds detected. Finishing tracking."
-                # Trigger the summary via kill or just call the summary logic
                 kill -s INT $$
                 return
             fi
@@ -1249,20 +1288,26 @@ function cleanup_build_times {
                 [[ -z "$line" ]] && continue
                 
                 local pid=$(echo "$line" | awk '{print $1}')
-                local pkg=$(echo "$line" | awk '{print $NF}')
+                local pkg=$(echo "$line" | grep -oP '(?<=autobuild\.sh\s)\S+')
                 
-                # If we haven't monitored this PID yet
                 if [[ ! " $monitored_pids " =~ " $pid " ]]; then
+                    # 1. Get actual start time of this process
+                    local start_str=$(pstart "$pid")
+                    if [[ -z "$start_str" ]]; then
+                         # Process might have just ended
+                         continue
+                    fi
+                    local t_start=$(date -d "$start_str" +"%s")
+                    
                     echo "------------------------------------------------"
-                    echo "Monitoring build of: $pkg (PID $pid)..."
+                    echo "Monitoring build of: $pkg (Started: $start_str)"
                     
-                    # Capture the final duration output from pelaps_live
-                    # pelaps_live prints the final duration with a newline
-                    local start_time=$(date +%s)
+                    # 2. Run the live display
                     pelaps_live "$pid"
-                    local end_time=$(date +%s)
                     
-                    local elapsed=$((end_time - start_time))
+                    # 3. Use end time for duration string based on original start
+                    local t_end=$(date +"%s")
+                    local elapsed=$((t_end - t_start))
                     local duration_str=$(printf '%02d:%02d:%02d' $(($elapsed/3600)) $((($elapsed%3600)/60)) $(($elapsed%60)))
                     
                     summary_list+=("Package: $(printf '%-20s' "$pkg") | Duration: $duration_str")
@@ -1273,4 +1318,8 @@ function cleanup_build_times {
         
         sleep 3
     done
+}
+
+function update-grub {
+	sudo /sbin/grub-mkconfig -o /boot/grub/grub.cfg
 }

@@ -609,19 +609,17 @@ function check_version {
 source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
 source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
 
-cleanup_old_libraries_gpt() {
+v1_cleanup_old_libraries_gpt() {
     local dep_cache="/tmp/lfs_dep_cache.txt"
     local pkg_cache="/tmp/lfs_pkg_cache.txt"
     
     echo "[LFS-AUTOBUILD] Generating comprehensive dependency and package caches..."
     
     # 1. Generate system-wide dependency cache (File -> Shared Lib SONAMEs)
-    # We store the SONAMEs that binaries link against.
     find /usr/bin /usr/lib /lib /opt -type f \( -executable -o -name "*.so*" \) 2>/dev/null | 
     xargs -P$(nproc) -I{} sh -c "readelf -d '{}' 2>/dev/null | grep -q '(NEEDED)' && printf '%s: ' '{}' && readelf -d '{}' 2>/dev/null | grep '(NEEDED)' | sed -E 's/.*\[(.*)\].*/\1/' | tr '\n' ' ' && echo" > "$dep_cache"
     
     # 2. Generate package inventory mapping (File -> Package)
-    # Ensure we catch ALL files by using a robust grep
     grep -r "^/" /var/lib/book-packages /var/lib/custom-packages 2>/dev/null | sed -E 's|/var/lib/[^/]+-packages/([^:]+):(.*)|\2:\1|' > "$pkg_cache"
 
     echo "[LFS-AUTOBUILD] Caches generated. Scanning libraries..."
@@ -650,6 +648,7 @@ cleanup_old_libraries_gpt() {
     fi
 
     for i in "${old_libs[@]}"; do
+        [ -f "$i" ] || continue
         echo "------------------------------------------------"
         echo "Evaluating: $i"
 
@@ -660,17 +659,26 @@ cleanup_old_libraries_gpt() {
         fi
 
         # 4. GET SONAME OF THE LIBRARY
-        # This is critical because binaries link against SONAME, not the full file name.
         local soname=$(readelf -d "$i" 2>/dev/null | grep SONAME | sed -E 's/.*\[(.*)\].*/\1/')
         [ -z "$soname" ] && soname=$(basename "$i")
-        
         echo "SONAME: $soname"
+
+        # [NEW] Check if the SONAME is already pointed to a NEWER library version
+        # If we are deleting libfoo.so.8.0.8, but libfoo.so.8 points to 8.0.9, then 8.0.8 is redundant.
+        local current_active=$(readlink -f "/usr/lib/$soname" 2>/dev/null || readlink -f "/lib/$soname" 2>/dev/null)
+        if [ -n "$current_active" ] && [ "$(realpath -m "$current_active")" != "$(realpath -m "$i")" ]; then
+            # Double check: does the current active one actually provide the SONAME?
+            if readelf -d "$current_active" 2>/dev/null | grep SONAME | grep -q "\[$soname\]"; then
+                echo "Result: Redundant (same SONAME provided by $(basename "$current_active")). Deleting $i..."
+                sudo rm -f -- "$i"
+                continue
+            fi
+        fi
 
         # 5. Dependency check using SONAME
         local deps=($(grep -F " $soname " "$dep_cache" | cut -d: -f1))
 
         if [ ${#deps[@]} -eq 0 ]; then
-            # Safe to delete ONLY if NO binaries link against this SONAME
             echo "Result: Unused. Deleting $i..."
             sudo rm -f -- "$i"
             continue
@@ -685,7 +693,6 @@ cleanup_old_libraries_gpt() {
             if [ -n "$p" ]; then
                  found_pkgs+=("$p")
             else
-                 # If not in inventory, we MUST NOT delete the library.
                  echo "Warning: Dependent binary $d is NOT recorded in any package inventory."
                  echo "Result: Blocking deletion of $i for safety."
                  continue 2
@@ -693,6 +700,22 @@ cleanup_old_libraries_gpt() {
         done
         
         local pkgs=($(printf "%s\n" "${found_pkgs[@]}" | sort -u))
+        
+        # [NEW] Optimization: If the SONAME is still present in the system linked to a file and we aren't deleting it, 
+        # then we don't need to rebuild any packages that link to this SONAME.
+        # This prevents accidental rebuild loops when minor version bumps occur.
+        local provider_exists=false
+        # We already checked current_active above, but let's be thorough
+        if [ -n "$current_active" ] && [ -f "$current_active" ]; then
+             provider_exists=true
+        fi
+        
+        if [ "$provider_exists" = "true" ]; then
+             echo "Result: Dependents exist but $(basename "$current_active") already handles SONAME $soname. Deleting $i..."
+             sudo rm -f -- "$i"
+             continue
+        fi
+
         echo "Packages requiring rebuild: ${pkgs[@]}"
         
         # 7. Rebuild loop
@@ -710,12 +733,13 @@ cleanup_old_libraries_gpt() {
              echo "Verification: Re-checking dependencies for $soname..."
              local remaining=0
              for d in "${deps[@]}"; do
-                 # Check if the file still exists and still links to our SONAME
-                 if [ -f "$d" ] && readelf -d "$d" 2>/dev/null | grep -q "\[$soname\]"; then
-                      echo "Persistence: $d still linked to $soname."
-                      remaining=1
-                      break
-                 fi
+                  if [ -f "$d" ] && readelf -d "$d" 2>/dev/null | grep -q "\[$soname\]"; then
+                       # Check if it still links to the OLD library specifically? No, readelf only shows SONAME.
+                       # But if we successfully rebuilt, it might now link to a NEW SONAME.
+                       echo "Persistence: $d still linked to $soname."
+                       remaining=1
+                       break
+                  fi
              done
              
              if [ $remaining -eq 0 ]; then
@@ -730,16 +754,6 @@ cleanup_old_libraries_gpt() {
     done
     
     rm -f "$dep_cache" "$pkg_cache"
-}
-
-export CP=/var/lib/custom-packages
-export BP=/var/lib/book-packages
-function cdcp {
-	cd $CP/$1
-}
-
-function cdbp {
-	cd $BP/$1
 }
 
 OSYS=$(cat /etc/os-release | grep "PRETTY_NAME" | cut -d '"' -f 2 | cut -d '/' -f 1)
@@ -1322,4 +1336,14 @@ function cleanup_build_times {
 
 function update-grub {
 	sudo /sbin/grub-mkconfig -o /boot/grub/grub.cfg
+}
+source ~/.cleanup_old_libraries_gpt.sh
+export BP=/var/lib/book-packages
+export CP=/var/lib/custom-packages
+function cdbp {
+	cd $BP/$1
+}
+
+function cdcp {
+	cd $CP/$1
 }

@@ -123,7 +123,8 @@ function ugrub {
 ver=$(wget -cqO- https://www.linuxfromscratch.org/lfs/view/systemd/index.html | grep -i "version" | sed 's/^\s*//g' | cut -d ' ' -f 2 | sed 's/-systemd//g')
 
 if [[ $ver != $(cat /etc/os-release | grep VERSION_ID | cut -d '"' -f 2) ]]; then
-	printf "New update to LFS manual is out."
+	printf "New update to LFS manual is out. Running upos"
+	upos
 fi
 export SRC="/sources"
 export ARC="$SRC/archives"

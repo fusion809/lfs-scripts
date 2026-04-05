@@ -1350,10 +1350,3 @@ function cdcp {
 	cd $CP/$1
 }
 
-dashdir="$HOME/.local/share/gnome-shell/extensions/dash-to-dock@micxgx.gmail.com"
-if ! [[ -f "$dashdir/docking.js" ]]; then
-	cd $dashdir
-	cp ~/Downloads/dash-to-dock*.zip .
-	unzip *.zip
-fi
-

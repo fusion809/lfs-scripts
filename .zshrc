@@ -123,12 +123,13 @@ function ugrub {
 ver=$(wget -cqO- https://www.linuxfromscratch.org/lfs/view/systemd/index.html | grep -i "version" | sed 's/^\s*//g' | cut -d ' ' -f 2 | sed 's/-systemd//g')
 function upos {
 	upver=$(wget -cqO- https://www.linuxfromscratch.org/lfs/view/systemd/index.html | grep "Version" | sed 's/^\s*//g' | cut -d ' ' -f 2 | sed 's/-systemd//g')
-	sudo sed -i -E "s|r[0-9]{2,}\.[0-9]-[0-9]+|$upver|g" /etc/os-release /etc/lfs-release /etc/lsb-release
+	if [[ -n "$upvar" ]]; then
+		sudo sed -i -E "s|r[0-9]{2,}\.[0-9]-[0-9]+|$upver|g" /etc/os-release /etc/lfs-release /etc/lsb-release
+	fi
 }
 
 if [[ $ver != $(cat /etc/os-release | grep VERSION_ID | cut -d '"' -f 2) ]]; then
-	printf "New update to LFS manual is out. Running upos"
-	upos
+	printf "New update to LFS manual is out. Might be worth running update."
 fi
 export SRC="/sources"
 export ARC="$SRC/archives"
@@ -1338,7 +1339,6 @@ function cleanup_build_times {
 function update-grub {
 	sudo /sbin/grub-mkconfig -o /boot/grub/grub.cfg
 }
-
 source ~/.cleanup_old_libraries_gpt.sh
 export BP=/var/lib/book-packages
 export CP=/var/lib/custom-packages
@@ -1348,5 +1348,26 @@ function cdbp {
 
 function cdcp {
 	cd $CP/$1
+}
+
+function cddo {
+	cd $HOME/Downloads
+}
+
+source $HOME/.lfs_scripts/21-lfs.sh
+
+local_time=$(date +"%a, %d %b %Y %R:%S" -u)
+google_time="$(curl -sI https://google.com | grep -i '^date:' | sed 's/^[Dd]ate: //g')"
+
+if [[ "$local_time" != "${google_time/ GMT/}" ]]; then
+	sudo date -s "$google_time"
+fi
+
+function plasBoot {
+	sudo sed -i -e "6s|#Session=plasma|Session=plasma|g" -e "7s|Session=gnome|#Session=gnome|g" /etc/sddm.conf
+}
+
+function gnomeBoot {
+	sudo sed -i -e "6s|Session=plasma|#Session=plasma|g" -e "7s|#Session=gnome|Session=gnome|g" /etc/sddm.conf
 }
 

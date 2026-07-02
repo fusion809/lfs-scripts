@@ -1339,7 +1339,6 @@ function cleanup_build_times {
 function update-grub {
 	sudo /sbin/grub-mkconfig -o /boot/grub/grub.cfg
 }
-source ~/.cleanup_old_libraries_gpt.sh
 export BP=/var/lib/book-packages
 export CP=/var/lib/custom-packages
 function cdbp {

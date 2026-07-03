@@ -1371,6 +1371,11 @@ function plasRb {
 	sudo reboot
 }
 
+function plasSw {
+	plasBoot
+	sudo systemctl restart sddm
+}
+
 function gnomBoot {
 	sudo sed -i -e "6s|Session=plasma|#Session=plasma|g" -e "7s|#Session=gnome|Session=gnome|g" /etc/sddm.conf
 }
@@ -1380,3 +1385,7 @@ function gnomRb {
 	sudo reboot
 }
 
+function gnomSw {
+	gnomBoot
+	sudo systemctl restart sddm
+}

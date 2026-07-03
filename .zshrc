@@ -123,7 +123,7 @@ function ugrub {
 ver=$(wget -cqO- https://www.linuxfromscratch.org/lfs/view/systemd/index.html | grep -i "version" | sed 's/^\s*//g' | cut -d ' ' -f 2 | sed 's/-systemd//g')
 function upos {
 	upver=$(wget -cqO- https://www.linuxfromscratch.org/lfs/view/systemd/index.html | grep "Version" | sed 's/^\s*//g' | cut -d ' ' -f 2 | sed 's/-systemd//g')
-	if [[ -n "$upvar" ]]; then
+	if echo "$upvar" | grep "^r"; then
 		sudo sed -i -E "s|r[0-9]{2,}\.[0-9]-[0-9]+|$upver|g" /etc/os-release /etc/lfs-release /etc/lsb-release
 	fi
 }
@@ -1366,7 +1366,17 @@ function plasBoot {
 	sudo sed -i -e "6s|#Session=plasma|Session=plasma|g" -e "7s|Session=gnome|#Session=gnome|g" /etc/sddm.conf
 }
 
-function gnomeBoot {
+function plasRb {
+	plasBoot
+	sudo reboot
+}
+
+function gnomBoot {
 	sudo sed -i -e "6s|Session=plasma|#Session=plasma|g" -e "7s|#Session=gnome|Session=gnome|g" /etc/sddm.conf
+}
+
+function gnomRb {
+	gnomBoot
+	sudo reboot
 }
 

@@ -129,7 +129,7 @@ function upos {
 }
 
 if [[ $ver != $(cat /etc/os-release | grep VERSION_ID | cut -d '"' -f 2) ]]; then
-	printf "New update to LFS manual is out. Might be worth running update."
+	upos
 fi
 export SRC="/sources"
 export ARC="$SRC/archives"
@@ -1359,7 +1359,7 @@ local_time=$(date +"%a, %d %b %Y %R:%S" -u)
 google_time="$(curl -sI https://google.com | grep -i '^date:' | sed 's/^[Dd]ate: //g')"
 
 if [[ "$local_time" != "${google_time/ GMT/}" ]]; then
-	sudo date -s "$google_time"
+	sudo date -s "$google_time" > /dev/null
 fi
 
 function plasBoot {
@@ -1408,3 +1408,10 @@ function updates_no {
 	echo " $no_updates 󰂕 $no_missing_total  $no_failed"
 }
 
+if ! [[ -f $HOME/.local/share/gnome-shell/extensions/user-theme@gnome-shell-extensions.gcampax.github.com/COPYING ]]; then
+	cd ~/.local/share/gnome-shell/extensions/user-theme@gnome-shell-extensions.gcampax.github.com
+	unzip $HOME/Downloads/user-theme*.zip
+	cd schemas
+	glib-compile-schemas .
+	cd ~/
+fi

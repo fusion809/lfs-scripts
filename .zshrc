@@ -1410,8 +1410,9 @@ function updates_no {
 
 if ! [[ -f $HOME/.local/share/gnome-shell/extensions/user-theme@gnome-shell-extensions.gcampax.github.com/COPYING ]]; then
 	cd ~/.local/share/gnome-shell/extensions/user-theme@gnome-shell-extensions.gcampax.github.com
-	unzip $HOME/Downloads/user-theme*.zip
+	unzip $HOME/Downloads/user-theme*.zip > /dev/null
 	cd schemas
 	glib-compile-schemas .
 	cd ~/
+	sudo systemctl restart sddm
 fi

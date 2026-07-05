@@ -8,4 +8,5 @@ no_missing=$(grep -cF "[MISSING]" /tmp/updates.log)
 no_files_missing=$(grep -cF "[FILES MISSING]" /tmp/updates.log)
 no_missing_total=$(($no_missing + $no_files_missing))
 no_failed=$(grep -cF "[FAILED]" /tmp/updates.log)
-echo "Up $no_updates M $no_missing_total F $no_failed"
+echo " $no_updates 󰂕 $no_missing_total  $no_failed"
+#echo "Up $no_updates M $no_missing_total F $no_failed"

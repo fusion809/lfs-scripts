@@ -1,6 +1,6 @@
 #!/bin/bash
 source $HOME/.bashrc
-if ! find /tmp/updates.log -mmin -5 | grep -q . ; then
+if ! find /tmp/updates.log -mmin -10 | grep -q . ; then
 	updates 2>&1 | tee /tmp/updates.log > /dev/null
 fi
 no_updates=$(grep -cF "[UPDATE]" /tmp/updates.log)

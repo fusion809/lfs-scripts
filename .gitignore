@@ -1,4 +1,6 @@
 .*.swp
+.RData
+.Rhistory
 *.png
 *.dat
 wget-list

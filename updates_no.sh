@@ -1,6 +1,8 @@
 #!/bin/bash
 source $HOME/.bashrc
-updates 2>&1 | tee /tmp/updates.log > /dev/null
+if ! find /tmp/updates.log -mmin -5 | grep -q . ; then
+	updates 2>&1 | tee /tmp/updates.log > /dev/null
+fi
 no_updates=$(grep -cF "[UPDATE]" /tmp/updates.log)
 no_missing=$(grep -cF "[MISSING]" /tmp/updates.log)
 no_files_missing=$(grep -cF "[FILES MISSING]" /tmp/updates.log)

@@ -1408,11 +1408,6 @@ function updates_no {
 	echo " $no_updates 󰂕 $no_missing_total  $no_failed"
 }
 
-if ! [[ -f $HOME/.local/share/gnome-shell/extensions/user-theme@gnome-shell-extensions.gcampax.github.com/COPYING ]]; then
-	cd ~/.local/share/gnome-shell/extensions/user-theme@gnome-shell-extensions.gcampax.github.com
-	unzip $HOME/Downloads/user-theme*.zip > /dev/null
-	cd schemas
-	glib-compile-schemas .
-	cd ~/
-	sudo systemctl restart sddm
+if [[ "$(gsettings get org.gnome.shell disable-user-extensions)" == "true" ]]; then
+	gsettings set org.gnome.shell disable-user-extensions false
 fi

@@ -1411,3 +1411,7 @@ function updates_no {
 if [[ "$(gsettings get org.gnome.shell disable-user-extensions)" == "true" ]]; then
 	gsettings set org.gnome.shell disable-user-extensions false
 fi
+
+function cde {
+	cd ~/.local/share/gnome-shell/extensions/executor@raujonas.github.io/$1
+}

@@ -1413,5 +1413,5 @@ if [[ "$(gsettings get org.gnome.shell disable-user-extensions)" == "true" ]]; t
 fi
 
 function cde {
-	cd ~/.local/share/gnome-shell/extensions/executor@raujonas.github.io/$1
+	cd /usr/share/gnome-shell/extensions/executor@raujonas.github.io/$1
 }

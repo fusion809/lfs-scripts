@@ -3,10 +3,12 @@
 source "$HOME/.bashrc"
 
 LOG="$HOME/updates.log"
+LOG_TMP="$HOME/updates.log.tmp"
 MIN_MAX=4
 
 silent_updates() {
-	updates 2>&1 | tee "$LOG" > /dev/null
+	updates 2>&1 | tee "$LOG_TMP" > /dev/null
+	mv $LOG_TMP $LOG
 }
 
 log_is_recent() {

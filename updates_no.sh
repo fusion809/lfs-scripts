@@ -1,12 +1,43 @@
 #!/bin/bash
-source $HOME/.bashrc
-if ! find ~/updates.log -mmin -5 | grep -q . ; then
-	updates 2>&1 | tee ~/updates.log > /dev/null
+
+source "$HOME/.bashrc"
+
+LOG="$HOME/updates.log"
+MIN_MAX=4
+
+silent_updates() {
+	updates 2>&1 | tee "$LOG" > /dev/null
+}
+
+log_is_recent() {
+	find "$LOG" -mmin -$MIN_MAX | grep -q .
+}
+
+ensure_log() {
+	if [[ ! -f "$LOG" ]] || ! log_is_recent; then
+		silent_updates
+	fi
+}
+
+read_log_stats() {
+	no_updates=$(grep -cF "[UPDATE]" "$LOG")
+	no_missing=$(grep -cF "[MISSING]" "$LOG")
+	no_files_missing=$(grep -cF "[FILES MISSING]" "$LOG")
+	no_missing_total=$((no_missing + no_files_missing))
+	no_failed=$(grep -cF "[FAILED]" "$LOG")
+	mod_time=$(date -d "$(stat -c %y "$LOG")" "+%I:%M:%S %p")
+}
+
+print_status() {
+	echo " $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed"
+}
+
+ensure_log
+read_log_stats
+print_status
+
+if ! log_is_recent; then
+	silent_updates
+	read_log_stats
+	print_status
 fi
-no_updates=$(grep -cF "[UPDATE]" ~/updates.log)
-no_missing=$(grep -cF "[MISSING]" ~/updates.log)
-no_files_missing=$(grep -cF "[FILES MISSING]" ~/updates.log)
-no_missing_total=$(($no_missing + $no_files_missing))
-no_failed=$(grep -cF "[FAILED]" ~/updates.log)
-mod_time=$(date -d "$(stat -c %y ~/updates.log)" "+%I:%M:%S %p")
-echo " $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed"

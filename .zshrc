@@ -1415,3 +1415,7 @@ fi
 function cde {
 	cd /usr/share/gnome-shell/extensions/executor@raujonas.github.io/$1
 }
+
+function vrm {
+	vim README.md
+}

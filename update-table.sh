@@ -1,9 +1,13 @@
 #!/bin/bash
-grep -E '\[(UPDATES|MISSING|FAILED)\]' ~/updates.log | awk -F'[[:space:]]*\\|[[:space:]]*' '
+grep -E '\[(UPDATE|MISSING|FAILED)\]' ~/updates.log |
+awk -F'[[:space:]]*\\|[[:space:]]*' '
 {
     for (i = 1; i <= NF; i++) {
-        gsub(/^[[:space:]]+|[[:space:]]+$/, "", $i)  # trim
-        gsub(/[[:space:]]+/, " ", $i)                # collapse internal whitespace
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", $i)
+        gsub(/[[:space:]]+/, " ", $i)
     }
-    printf "%-16s |   %-7s | %s\n", $1, $2, $3
+
+    match($3, /^(.*) (\[[^]]+\])$/, a)
+
+    printf "%-16s |   %-7s | %-8s %s\n", $1, $2, a[1], a[2]
 }'

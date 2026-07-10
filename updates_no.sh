@@ -4,7 +4,7 @@ source "$HOME/.bashrc"
 
 LOG="$HOME/updates.log"
 LOG_TMP="$HOME/updates.log.tmp"
-MAX_AGE=60
+MAX_AGE=240
 
 silent_updates() {
     updates 2>&1 | tee "$LOG_TMP" > /dev/null &&

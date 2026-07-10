@@ -7,39 +7,38 @@ LOG_TMP="$HOME/updates.log.tmp"
 MIN_MAX=4
 
 silent_updates() {
-	updates 2>&1 | tee "$LOG_TMP" > /dev/null
-	mv $LOG_TMP $LOG
+    updates 2>&1 | tee "$LOG_TMP" > /dev/null &&
+    mv "$LOG_TMP" "$LOG"
 }
 
 log_is_recent() {
-	find "$LOG" -mmin -$MIN_MAX | grep -q .
+    find "$LOG" -mmin "-$MIN_MAX" | grep -q .
 }
 
-ensure_log() {
-	if [[ ! -f "$LOG" ]] || ! log_is_recent; then
-		silent_updates
-	fi
+update_if_needed() {
+    if [[ ! -f "$LOG" ]]; then
+        silent_updates
+    elif ! log_is_recent; then
+        (
+            flock -n 9 || exit
+            silent_updates
+        ) 9>"$LOG.lock" &
+    fi
 }
 
 read_log_stats() {
-	no_updates=$(grep -cF "[UPDATE]" "$LOG")
-	no_missing=$(grep -cF "[MISSING]" "$LOG")
-	no_files_missing=$(grep -cF "[FILES MISSING]" "$LOG")
-	no_missing_total=$((no_missing + no_files_missing))
-	no_failed=$(grep -cF "[FAILED]" "$LOG")
-	mod_time=$(date -d "$(stat -c %y "$LOG")" "+%I:%M:%S %p")
+    no_updates=$(grep -cF "[UPDATE]" "$LOG")
+    no_missing=$(grep -cF "[MISSING]" "$LOG")
+    no_files_missing=$(grep -cF "[FILES MISSING]" "$LOG")
+    no_missing_total=$((no_missing + no_files_missing))
+    no_failed=$(grep -cF "[FAILED]" "$LOG")
+    mod_time=$(date -d "$(stat -c %y "$LOG")" "+%I:%M:%S %p")
 }
 
 print_status() {
-	echo " $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed"
+    echo " $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed"
 }
 
-ensure_log
+update_if_needed
 read_log_stats
 print_status
-
-if ! log_is_recent; then
-	silent_updates
-	read_log_stats
-	print_status
-fi

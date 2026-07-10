@@ -4,7 +4,7 @@ source "$HOME/.bashrc"
 
 LOG="$HOME/updates.log"
 LOG_TMP="$HOME/updates.log.tmp"
-MIN_MAX=4
+MAX_AGE=60
 
 silent_updates() {
     updates 2>&1 | tee "$LOG_TMP" > /dev/null &&
@@ -12,7 +12,7 @@ silent_updates() {
 }
 
 log_is_recent() {
-    find "$LOG" -mmin "-$MIN_MAX" | grep -q .
+	(( EPOCHSECONDS - $(stat -c %Y "$LOG") > $MAX_AGE ))
 }
 
 update_if_needed() {

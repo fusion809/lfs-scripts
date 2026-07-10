@@ -12,7 +12,7 @@ silent_updates() {
 }
 
 log_is_recent() {
-	find "$LOG" -mmin "$MAX_AGE" | grep -q .
+	find "$LOG" -mmin "-$MAX_AGE" | grep -q .
 }
 
 update_if_needed() {

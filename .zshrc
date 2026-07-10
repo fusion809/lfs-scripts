@@ -1419,3 +1419,20 @@ function cde {
 function vrm {
 	vim README.md
 }
+
+function pkgver {
+	find /var/lib/{book,custom}-packages -type f -name "*$1*" -exec sh -c '
+    for file; do
+        head -n1 "$file"
+    done
+' sh {} +
+}
+
+function inv {
+	find /var/lib/{book,custom}-packages -type f -name "*$1*" -exec sh -c '
+    for file; do
+        tail -n +2 "$file"
+    done
+' sh {} +
+}
+

@@ -1,6 +1,7 @@
 .*.swp
 .RData
 .Rhistory
+wget-log
 *.png
 *.dat
 wget-list

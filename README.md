@@ -1,9 +1,9 @@
 # LFS scripts
 This repository contains the shell scripts I use on Linux From Scratch. The check-updates.sh script is a script to determine whether the versions of each package in my LFS VM are outdated. It refers to functions.sh. The zshrc file, Shell folder and root folder contain the scripts I place in ~/, ~/Shell and /root, respectively on my LFS system to make my life on LFS easier. 
 
-The scripts used by my [Executor GNOME extension setup](https://github.com/fusion809/executor-raujonas.github.io) are explained in Table 2.
+The scripts used by my [Executor GNOME extension setup](https://github.com/fusion809/executor-raujonas.github.io) are explained in Table 1.
 
-**Table 2: Scripts used by Executor GNOME extension.**
+**Table 1: Scripts used by Executor GNOME extension.**
 | Script                | Description |
 |-----------------------|-------------|
 | `count-wallpapers.sh` | Displays 󰸉 number of displayed wallpaper/total number of wallpapers. |

@@ -61,9 +61,6 @@ print_status() {
                 local avg_duration_rnd=$(R -q -e "round($avg_duration)" | grep "^\[1\]" | cut -d ' ' -f 2)
 				if (( avg_duration_rnd > 0 )); then
 					local percent=$(R -q -e "round($elapsed*100/$avg_duration)" | grep "^\[1\]" | cut -d ' ' -f 2)
-					if (( percent > 99 )); then
-						percent=99
-					fi
 					in_progress="󰦕 ${percent}% "
 				fi
 			fi

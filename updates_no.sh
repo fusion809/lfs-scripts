@@ -4,11 +4,19 @@ source "$HOME/.bashrc"
 
 LOG="$HOME/updates.log"
 LOG_TMP="$HOME/updates.log.tmp"
+DURATION_LOG="$HOME/updates_duration.log"
 MAX_AGE=4 # Maximum age of updates.log in minutes
 
 silent_updates() {
-    updates 2>&1 | tee "$LOG_TMP" > /dev/null &&
-    mv "$LOG_TMP" "$LOG"
+    local start_time=$(date +%s)
+    echo "$start_time" > "${LOG_TMP}.start"
+    if updates 2>&1 | tee "$LOG_TMP" > /dev/null; then
+        mv "$LOG_TMP" "$LOG"
+        local end_time=$(date +%s)
+        local duration=$((end_time - start_time))
+        echo "$duration" >> "$DURATION_LOG"
+    fi
+    rm -f "${LOG_TMP}.start"
 }
 
 log_is_recent() {
@@ -44,6 +52,21 @@ print_status() {
 	in_progress=""
 	if [[ -f $LOG_TMP ]]; then
 		in_progress="󰦕 "
+		if [[ -f "${LOG_TMP}.start" ]]; then
+			local start_time=$(cat "${LOG_TMP}.start" 2>/dev/null)
+			if [[ -n "$start_time" ]]; then
+				local current_time=$(date +%s)
+				local elapsed=$((current_time - start_time))
+				local avg_duration=$(awk '{sum+=$1} END {if (NR>0) print int(sum/NR); else print 0}' "$DURATION_LOG" 2>/dev/null || echo 0)
+				if (( avg_duration > 0 )); then
+					local percent=$(( elapsed * 100 / avg_duration ))
+					if (( percent > 99 )); then
+						percent=99
+					fi
+					in_progress="󰦕 ${percent}% "
+				fi
+			fi
+		fi
 	fi
 	echo "$in_progress $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed"
 }

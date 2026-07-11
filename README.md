@@ -32,7 +32,7 @@ The scripts used by my [Executor GNOME extension setup](https://github.com/fusio
 <td><code>updates_no.sh</code></td>
 <td>Prints <code>$in_progress  $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed</code> where:
 <ul>
-<li><code>$in_progress</code> is replaced with <code>󰦕 </code> if an update check is in progress.</li>
+<li><code>$in_progress</code> is replaced with <code>󰦕$perc_elapsed </code> if an update check is in progress. <code>$perc_elapsed</code> is replaced with the percentage of time in the update check job that's elapsed.</li>
 <li><code>$mod_time</code> is when the most recent update check finished. </li>
 <li><code>$no_updates</code> is the number of available updates.</li>
 <li><code>$no_missing_total</code> is the number of packages with missing inventories.</li>

@@ -41,7 +41,11 @@ read_log_stats() {
 }
 
 print_status() {
-    echo " $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed"
+	in_progress=""
+	if [[ -f $LOG_TMP ]]; then
+		in_progress="󰦕 "
+	fi
+	echo "$in_progress $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed"
 }
 
 update_if_needed

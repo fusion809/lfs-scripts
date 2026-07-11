@@ -17,17 +17,17 @@ log_is_recent() {
 
 update_if_needed() {
     if [[ ! -f "$LOG" ]]; then
-        # No log at all — block until one is created
+        # No log at all — refresh in background, print empty/zero stats now
         (
-            flock 9
+            flock -n 9 || exit
             [[ -f "$LOG" ]] || silent_updates
-        ) 9>"$LOG.lock"
+        ) >/dev/null 2>&1 9>"$LOG.lock" &
     elif ! log_is_recent; then
         # Log exists but stale — refresh in background, print stale data now
         (
             flock -n 9 || exit
             silent_updates
-        ) 9>"$LOG.lock" &
+        ) >/dev/null 2>&1 9>"$LOG.lock" &
     fi
 }
 

@@ -57,9 +57,10 @@ print_status() {
 			if [[ -n "$start_time" ]]; then
 				local current_time=$(date +%s)
 				local elapsed=$((current_time - start_time))
-				local avg_duration=$(awk '{sum+=$1} END {if (NR>0) print int(sum/NR); else print 0}' "$DURATION_LOG" 2>/dev/null || echo 0)
-				if (( avg_duration > 0 )); then
-					local percent=$(( elapsed * 100 / avg_duration ))
+				local avg_duration=$(R -q -e "durations <- scan(\"$DURATION_LOG\", quiet=TRUE); mean(durations)" | grep "^\[1\]" | cut -d ' ' -f 2)
+                local avg_duration_rnd=$(R -q -e "round($avg_duration)" | grep "^\[1\]" | cut -d ' ' -f 2)
+				if (( avg_duration_rnd > 0 )); then
+					local percent=$(R -q -e "round($elapsed*100/$avg_duration)" | grep "^\[1\]" | cut -d ' ' -f 2)
 					if (( percent > 99 )); then
 						percent=99
 					fi

@@ -4,15 +4,40 @@ This repository contains the shell scripts I use on Linux From Scratch. The chec
 The scripts used by my [Executor GNOME extension setup](https://github.com/fusion809/executor-raujonas.github.io) are explained in Table 1.
 
 **Table 1: Scripts used by Executor GNOME extension.**
-| Script                | Description |
-|-----------------------|-------------|
-| `count-wallpapers.sh` | Displays 󰸉 number of displayed wallpaper/total number of wallpapers. |
-| `list-wallpaper.sh`   | Lists wallpapers with the displayed one highlighted and in the centre of the screen. |
-| `open-wallpaper.sh`   | Open displayed wallpaper in EOG. |
-| `update-table.sh`     | Produces table of package updates, packages with missing inventories, and packages with failed versioning. |
-| `updates_no.sh`       | Prints `$in_progress $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed` where:
-* `$in_progress` is replaced with `󰦕 ` if an update check is in progress.
-* `$mod_time` is when the most recent update check finished. 
-* `$no_updates` is the number of available updates.
-* `$no_missing_total` is the number of packages with missing inventories.
-* `$no_failed` is the number of packages with failed versioning checks. |
+<table>
+<thead>
+<tr>
+<th>Script</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>count-wallpapers.sh</code></td>
+<td>Displays 󰸉 number of displayed wallpaper/total number of wallpapers.</td>
+</tr>
+<tr>
+<td><code>list-wallpaper.sh</code></td>
+<td>Lists wallpapers with the displayed one highlighted and in the centre of the screen.</td>
+</tr>
+<tr>
+<td><code>open-wallpaper.sh</code></td>
+<td>Open displayed wallpaper in EOG.</td>
+</tr>
+<tr>
+<td><code>update-table.sh</code></td>
+<td>Produces table of package updates, packages with missing inventories, and packages with failed versioning.</td>
+</tr>
+<tr>
+<td><code>updates_no.sh</code></td>
+<td>Prints <code>$in_progress  $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed</code> where:
+<ul>
+<li><code>$in_progress</code> is replaced with <code>󰦕 </code> if an update check is in progress.</li>
+<li><code>$mod_time</code> is when the most recent update check finished. </li>
+<li><code>$no_updates</code> is the number of available updates.</li>
+<li><code>$no_missing_total</code> is the number of packages with missing inventories.</li>
+<li><code>$no_failed</code> is the number of packages with failed versioning checks.</li>
+</ul></td>
+</tr>
+</tbody>
+</table>

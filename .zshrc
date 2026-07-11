@@ -1436,3 +1436,9 @@ function inv {
 ' sh {} +
 }
 
+function rmSrc {
+	cdlfp
+	find . -mindepth 2 -maxdepth 2 -type d \
+    ! -exec test -d '{}/.git' ';' -print
+	find . -name "*.tar*" -delete
+}

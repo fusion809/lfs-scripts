@@ -48,8 +48,8 @@ read_log_stats() {
     mod_time=$(date -d "$(stat -c %y "$LOG")" "+%I:%M:%S %p")
 }
 
-print_status() {
-	in_progress=""
+progress_status() {
+    in_progress=""
 	if [[ -f $LOG_TMP ]]; then
 		in_progress="󰦕 "
 		if [[ -f "${LOG_TMP}.start" ]]; then
@@ -66,9 +66,13 @@ print_status() {
 			fi
 		fi
 	fi
+}
+
+print_status() {
 	echo "$in_progress $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed"
 }
 
 update_if_needed
 read_log_stats
+progress_status
 print_status

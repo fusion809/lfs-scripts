@@ -1447,5 +1447,6 @@ function dconfD {
 	cde
 	dconf dump /org/gnome/shell/extensions/executor/ > executor-settings.dconf
 	push "Updating dconf dump"
+	cd -
 }
 bt

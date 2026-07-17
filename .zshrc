@@ -1442,3 +1442,5 @@ function rmSrc {
     ! -exec test -d '{}/.git' ';' -print
 	find . -name "*.tar*" -delete
 }
+
+bt

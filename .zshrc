@@ -1449,4 +1449,13 @@ function dconfD {
 	push "Updating dconf dump"
 	cd -
 }
+
+function cdlg {
+	cd ~/lfs_gnuplot/$1
+}
+
+function cdld {
+	cd ~/lfs_dotfiles/$1
+}
+
 bt

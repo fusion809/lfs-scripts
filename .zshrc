@@ -1459,3 +1459,5 @@ function cdld {
 }
 
 bt
+
+alias cleanup_old_libraries=cleanup_old_libraries_gpt

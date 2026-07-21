@@ -1461,3 +1461,4 @@ function cdld {
 bt
 
 alias cleanup_old_libraries=cleanup_old_libraries_gpt
+alias cleanup_old_doc_dirs=cleanup_old_doc_dirs_gpt

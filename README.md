@@ -39,5 +39,9 @@ The scripts used by my [Executor GNOME extension setup](https://github.com/fusio
 <li><code>$no_failed</code> is the number of packages with failed versioning checks.</li>
 </ul></td>
 </tr>
+<tr>
+<td><code>updates_no_funcs.sh</code></td>
+<td>Provides functions used by <code>updates_no.sh</code>.</td>
+</tr>
 </tbody>
 </table>

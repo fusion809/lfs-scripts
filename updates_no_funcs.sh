@@ -18,7 +18,14 @@ silent_updates() {
 }
 
 log_is_recent() {
-	find "$LOG" -mmin "-$MAX_AGE" | grep -q .
+    local avg_duration_rnd=0
+    if [[ -s "$DURATION_LOG" ]]; then
+        avg_duration_rnd=$(R -q -e "durations <- scan(\"$DURATION_LOG\", quiet=TRUE); round(mean(durations))" 2>/dev/null | grep "^\[1\]" | cut -d ' ' -f 2 | tr -cd '0-9')
+        avg_duration_rnd=${avg_duration_rnd:-0}
+    fi
+    local threshold=$(( 300 - avg_duration_rnd ))
+    local log_age=$(( $(date +%s) - $(date +%s -r "$LOG") ))
+    (( threshold >= log_age ))
 }
 
 update_if_needed() {

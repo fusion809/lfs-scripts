@@ -1460,5 +1460,14 @@ function cdld {
 
 bt
 
-alias cleanup_old_libraries=cleanup_old_libraries_gpt
-alias cleanup_old_doc_dirs=cleanup_old_doc_dirs_gpt
+function clean_lfp_src {
+	cdlfp
+	for tarball in $(find . -name '*.tar*'); do
+    		dir=${tarball%.tar.*}   # removes .tar.xz, .tar.gz, .tar.bz2, etc.
+    		if [[ -d $dir ]]; then
+			rm -rf "$dir"
+			rm -rf "$tarball"
+    		fi
+	done
+	cd -
+}

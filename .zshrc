@@ -1471,3 +1471,12 @@ function clean_lfp_src {
 	done
 	cd -
 }
+
+function pkgver {
+	name="$1"
+	if ( ! [[ -f "$CP/$name" ]] ) && [[ -f "$BP/$name" ]]; then
+		cat "$BP/$name" | head -n 1
+	elif [[ -f "$CP/$name" ]]; then
+		cat "$CP/$name" | head -n 1
+	fi
+}

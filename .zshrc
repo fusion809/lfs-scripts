@@ -1458,15 +1458,15 @@ function cdld {
 	cd ~/lfs_dotfiles/$1
 }
 
-bt
+#bt
 
 function clean_lfp_src {
 	cdlfp
 	for tarball in $(find . -name '*.tar*'); do
     		dir=${tarball%.tar.*}   # removes .tar.xz, .tar.gz, .tar.bz2, etc.
     		if [[ -d $dir ]]; then
-			rm -rf "$dir"
-			rm -rf "$tarball"
+			sudo rm -rf "$dir"
+			sudo rm -rf "$tarball"
     		fi
 	done
 	cd -

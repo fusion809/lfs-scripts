@@ -19,6 +19,20 @@ function clean_lfp_src {
 	cd -
 }
 
+function download {
+	unset DOWNLOAD_x86_64
+	source *.info
+	if [[ -n $DOWNLOAD_x86_64 ]]; then
+		echo "x86_64!"
+		URL=$(cat *.info | grep DOWNLOAD_x86_64 | cut -d '"' -f 2)
+	else
+		echo "Not x86_64!"
+		URL=$(cat *.info | grep DOWNLOAD | cut -d '"' -f 2)
+	fi
+	echo "URL=$URL"
+	wget -c $URL
+}
+
 function pkgver {
 	find /var/lib/{book,custom}-packages -type f -name "*$1*" -exec sh -c '
     for file; do

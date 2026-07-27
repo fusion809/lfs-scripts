@@ -1,0 +1,152 @@
+source $HOME/.lfs_scripts/21-lfs.sh
+
+function instLfp {
+	if [[ -d $HOME/lfs_packaging/$1 ]]; then
+		cdlp "$1"
+		./build.sh
+	fi
+}
+
+function clean_lfp_src {
+	cdlfp
+	for tarball in $(find . -name '*.tar*'); do
+    		dir=${tarball%.tar.*}   # removes .tar.xz, .tar.gz, .tar.bz2, etc.
+    		if [[ -d $dir ]]; then
+			sudo rm -rf "$dir"
+			sudo rm -rf "$tarball"
+    		fi
+	done
+	cd -
+}
+
+function pkgver {
+	find /var/lib/{book,custom}-packages -type f -name "*$1*" -exec sh -c '
+    for file; do
+        head -n1 "$file"
+    done
+' sh {} +
+}
+
+function rmSrc {
+	cdlfp
+	find . -mindepth 2 -maxdepth 2 -type d \
+    ! -exec test -d '{}/.git' ';' -print
+	find . -name "*.tar*" -delete
+}
+
+function strip_system {
+	sudo su -c 'save_usrlib="$(cd /usr/lib; ls ld-linux*[^g])
+             libc.so.6
+             libthread_db.so.1
+             libquadmath.so.0.0.0
+             libstdc++.so.6.0.34
+             libitm.so.1.0.0
+             libatomic.so.1.2.0"
+
+cd /usr/lib
+
+for LIB in $save_usrlib; do
+    objcopy --only-keep-debug --compress-debug-sections=zstd $LIB $LIB.dbg
+    cp $LIB /tmp/$LIB
+    strip --strip-debug /tmp/$LIB
+    objcopy --add-gnu-debuglink=$LIB.dbg /tmp/$LIB
+    install -vm755 /tmp/$LIB /usr/lib
+    rm /tmp/$LIB
+done
+
+online_usrbin="bash find strip"
+online_usrlib="libbfd-2.45.1.so
+               libsframe.so.2.0.0
+               libhistory.so.8.3
+               libncursesw.so.6.6
+               libm.so.6
+               libreadline.so.8.3
+               libz.so.1.3.1
+               libzstd.so.1.5.7
+               $(cd /usr/lib; find libnss*.so* -type f)"
+
+for BIN in $online_usrbin; do
+    cp /usr/bin/$BIN /tmp/$BIN
+    strip --strip-debug /tmp/$BIN
+    install -vm755 /tmp/$BIN /usr/bin
+    rm /tmp/$BIN
+done
+
+for LIB in $online_usrlib; do
+    cp /usr/lib/$LIB /tmp/$LIB
+    strip --strip-debug /tmp/$LIB
+    install -vm755 /tmp/$LIB /usr/lib
+    rm /tmp/$LIB
+done
+
+for i in $(find /usr/lib -type f -name \*.so* ! -name \*dbg) \
+         $(find /usr/lib -type f -name \*.a)                 \
+         $(find /usr/{bin,sbin,libexec} -type f); do
+    case "$online_usrbin $online_usrlib $save_usrlib" in
+        *$(basename $i)* )
+            ;;
+        * ) strip --strip-debug $i
+            ;;
+    esac
+done
+
+unset BIN LIB save_usrlib online_usrbin online_usrlib'
+}
+
+# lfs_autobuild: run the host's latest lfs-autobuild.sh (synced to ~/.lfs_autobuild.sh by the host)
+autobuild() {
+    bash ~/.lfs_autobuild.sh "$@"
+}
+
+missing_search() {
+    local pattern="${1:-not found}"
+
+    for i in /usr/lib/* /usr/bin/*; do
+        [[ -e "$i" ]] || continue
+
+        if file -L "$i" | grep -q 'ELF'; then
+            if ldd "$i" 2>/dev/null | grep -q "$pattern"; then
+                echo "$i"
+            fi
+        fi
+    done
+}
+
+missing_search_fast() {
+    local pattern="${1:-not found}"
+    find /usr/lib /usr/bin /opt/qt6/bin /opt/qt6/lib /opt/rustc/bin /opt/rustc/lib /opt/texlive/2025/bin /opt/texlive/2025/lib -type f -print0 |
+    while IFS= read -r -d '' f; do
+        ldd "$f" 2>/dev/null | grep -q "$pattern" && printf '%s\n' "$f"
+    done
+}
+
+function version {
+	if [[ -n "$1" ]]; then
+		pushd $LFS/"$1"
+	fi
+	eval "$(grep '^version=' build.sh)"
+	echo "$version"
+	if [[ -n "$1" ]]; then
+		popd
+	fi
+}
+
+function check_version {
+	if [[ -n "$1" ]]; then
+		name="$1"
+		pushd $LFS/"$1"
+	else
+		name=$(pwd | sed 's|.*/||g')
+	fi
+	eval "$(grep '^version=' build.sh)"
+	inst_version="$(cat /var/lib/lfs-custom-packages/$name)"
+	if [[ "$inst_version" != "$version" ]]; then
+		echo "Installed version = $inst_version"
+		echo "Upstream version  = $version"
+	fi
+	if [[ -n "$1" ]]; then
+		popd
+	fi
+}
+
+source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null

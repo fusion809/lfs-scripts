@@ -107,3 +107,4 @@ for i in $HOME/lfs-scripts/Shell/*.sh
 do
 	source "$i"
 done
+source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null

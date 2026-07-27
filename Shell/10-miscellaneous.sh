@@ -6,18 +6,9 @@ function szsh {
 	source $HOME/.zshrc
 }
 
-ver=$(wget -cqO- https://www.linuxfromscratch.org/lfs/view/systemd/index.html | grep -i "version" | sed 's/^\s*//g' | cut -d ' ' -f 2 | sed 's/-systemd//g')
 function upos {
-	upver=$(wget -cqO- https://www.linuxfromscratch.org/lfs/view/systemd/index.html | grep "Version" | sed 's/^\s*//g' | cut -d ' ' -f 2 | sed 's/-systemd//g')
-	if echo "$upvar" | grep "^r"; then
-		sudo sed -i -E "s|r[0-9]{2,}\.[0-9]-[0-9]+|$upver|g" /etc/os-release /etc/lfs-release /etc/lsb-release
-	fi
+	~/.lfs_scripts/upos.sh
 }
-
-if [[ $ver != $(cat /etc/os-release | grep VERSION_ID | cut -d '"' -f 2) ]]; then
-	upos
-fi
-
 function srcs {
 	sudo du -h --max-depth=0 $SRC/* | sort -h
 }

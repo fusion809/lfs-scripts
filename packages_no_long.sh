@@ -5,6 +5,9 @@ book=$(ls /var/lib/book-packages | wc -l)
 custom=$(ls /var/lib/custom-packages | wc -l)
 R=$(Rscript -e 'ip <- installed.packages(); cat(ip[,1], sep="\n")' | wc -l)
 julia=$(julia -e 'using Pkg; Pkg.status()' | wc -l)
+if (( $julia == 0 )); then
+	julia="1"
+fi
 total=$(($julia+$pip+$R+$book+$custom))
 function comno {
     git -C /var/lib/$1-packages rev-list --branches master --count

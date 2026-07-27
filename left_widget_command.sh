@@ -1,3 +1,3 @@
 #!/bin/zsh
 source $HOME/.zshrc
-echo " $(boot_time)$(~/lfs-scripts/os_version.sh) 󰏖 $(~/lfs-scripts/packages_no.sh | sed 's/,//g') $(~/lfs-scripts/inventory_commit_no.sh)"
+echo " $(boot_time)$(~/lfs-scripts/os_version.sh) 󰏖 $(~/lfs-scripts/packages_status.sh | sed 's/,//g')"

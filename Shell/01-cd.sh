@@ -44,6 +44,10 @@ function cdlfp {
 
 alias cdlp=cdlfp
 
+function cdlfs {
+	cd ~/lfs-scripts/$1
+}
+
 function cdlg {
 	cd ~/lfs_gnuplot/$1
 }

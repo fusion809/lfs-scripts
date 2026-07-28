@@ -1,7 +1,7 @@
 #!/bin/bash
 
 INDEX=$(<~/.local/state/wallpaper_index)
-WINDOW=10
+WINDOW=25
 
 find ~/wallpapers -maxdepth 1 -type f \
     \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) |

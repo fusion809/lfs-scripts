@@ -5,4 +5,4 @@ function comno {
 }
 BP=$(comno book)
 CP=$(comno custom)
-echo "󰏗 󰊢   $BP  $CP" > ~/inventory_commit_no_long.log
+echo "Package inventory commit number:  $BP  $CP" > ~/inventory_commit_no_long.log

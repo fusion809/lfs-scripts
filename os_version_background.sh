@@ -1,5 +1,7 @@
 #!/bin/bash
-if find ~/os_version.log -mmin +1 | grep -q .; then
+current="󰌽 $(< /etc/lfs-release),$(cat /etc/blfs-release | cut -d '-' -f 2)"
+
+if [[ $(< ~/os_version.log) != "$current" ]]; then
 	LFS_VERSION=$(cat /etc/lfs-release)
 	BASE=$(echo $LFS_VERSION | cut -d '-' -f 1)
 	LFS_REV=$(echo $LFS_VERSION | cut -d '-' -f 2)

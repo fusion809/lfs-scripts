@@ -8,13 +8,36 @@ find ~/wallpapers -maxdepth 1 -type f \
 sort |
 nl -w3 -s'  ' |
 awk -v idx="$INDEX" -v window="$WINDOW" '
-$1 >= idx - window && $1 <= idx + window {
-    line = $1
-    sub(/^[[:space:]]*[0-9]+[[:space:]]+/, "", $0)
+{
+    lines[NR] = $0
+}
 
-    if (line == idx)
-        printf ">%3d  %s\n", line, $0
-    else
-        printf " %3d  %s\n", line, $0
+END {
+    max = NR
+
+    lower = idx - window
+    upper = idx + window
+
+    if (lower < 1) {
+        upper += 1 - lower
+        lower = 1
+    }
+
+    if (upper > max) {
+        lower -= upper - max
+        upper = max
+        if (lower < 1)
+            lower = 1
+    }
+
+    for (i = lower; i <= upper; i++) {
+        line = lines[i]
+        sub(/^[[:space:]]*[0-9]+[[:space:]]+/, "", line)
+
+        if (i == idx)
+            printf ">%3d  %s\n", i, line
+        else
+            printf " %3d  %s\n", i, line
+    }
 }
 '

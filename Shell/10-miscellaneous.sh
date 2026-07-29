@@ -38,3 +38,7 @@ if [[ "$local_time" != "${google_time/ GMT/}" ]]; then
 	sudo date -s "$google_time" > /dev/null
 fi
 
+function walloptim {
+	find ~/wallpapers -type f \( -iname '*.jpg' -o -iname '*.jpeg' \) \
+		-exec jpegoptim --strip-all --all-progressive {} +
+}

@@ -30,12 +30,12 @@ function cdld {
 	cd ~/lfs_dotfiles/$1
 }
 
-function cdlfa {
-	cd ~/lfs_apps/$1
-}
-
 function cdle {
 	cd ~/.local/share/gnome-shell/extensions/$1
+}
+
+function cdlfa {
+	cd ~/lfs_apps/$1
 }
 
 function cdlfp {
@@ -66,6 +66,10 @@ function cds {
 
 function cdsap {
 	cd /usr/share/applications
+}
+
+function cdsh {
+	cdlfs "Shell/$1"
 }
 
 function cdw {

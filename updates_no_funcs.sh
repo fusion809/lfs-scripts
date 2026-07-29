@@ -57,19 +57,11 @@ progress_status() {
     in_progress=""
 	if [[ -f $LOG_TMP ]]; then
 		in_progress="󰦕 "
-		if [[ -f "${LOG_TMP}.start" ]]; then
-			local start_time=$(cat "${LOG_TMP}.start" 2>/dev/null)
-			if [[ -n "$start_time" ]]; then
-				local current_time=$(date +%s)
-				local elapsed=$((current_time - start_time))
-				local avg_duration=$(R -q -e "durations <- scan(\"$DURATION_LOG\", quiet=TRUE); mean(durations)" | grep "^\[1\]" | cut -d ' ' -f 2)
-                local avg_duration_rnd=$(R -q -e "round($avg_duration)" | grep "^\[1\]" | cut -d ' ' -f 2)
-				if (( avg_duration_rnd > 0 )); then
-					local percent=$(R -q -e "round($elapsed*100/$avg_duration)" | grep "^\[1\]" | cut -d ' ' -f 2)
-					in_progress="󰦕 ${percent}% "
-				fi
-			fi
+		local percent=$(awk '/Global/ { sub(/.*Global /, ""); sub(/%.*/, ""); value = $0 } END { print value }' ~/updates.log.tmp)
+		if ! [[ -n $percent ]]; then
+			percent="0"
 		fi
+		in_progress="󰦕 ${percent}% "
 	fi
 }
 

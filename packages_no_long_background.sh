@@ -3,12 +3,12 @@ function hash {
     git -C /var/lib/$1-packages rev-parse --short HEAD
 }
 function changes {
-	git -C /var/lib/$1-packages diff --quiet
+	! git -C /var/lib/$1-packages diff --quiet
 }
 BH=$(hash book);
 CH=$(hash custom);
 
-if [[ $BH != "$(cat ~/book_hash.log)" ]] || [[ $CH != "$(cat ~/custom_hash.log)" ]] || ! $(changes book) || ! $(changes custom); then
+if [[ $BH != "$(cat ~/book_hash.log)" ]] || [[ $CH != "$(cat ~/custom_hash.log)" ]] || changes book || changes custom; then
 	pip=$(pip3 list | wc -l)
 	book=$(ls /var/lib/book-packages | wc -l)
 	custom=$(ls /var/lib/custom-packages | wc -l)

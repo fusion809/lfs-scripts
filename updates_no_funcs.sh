@@ -3,7 +3,7 @@ source $HOME/.bashrc
 LOG="$HOME/updates.log"
 LOG_TMP="$HOME/updates.log.tmp"
 DURATION_LOG="$HOME/updates_duration.log"
-MAX_AGE=4 # Maximum age of updates.log in minutes
+MAX_AGE=5 # Maximum age of updates.log in minutes
 
 silent_updates() {
     local start_time=$(date +%s)

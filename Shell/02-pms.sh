@@ -164,3 +164,6 @@ function check_version {
 }
 
 source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
+
+alias preserved-rebuild=cleanup_old_libraries_gpt
+alias preserved_rebuild=cleanup_old_libraries_gpt

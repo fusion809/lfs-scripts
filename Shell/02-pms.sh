@@ -7,7 +7,7 @@ function instLfp {
 	fi
 }
 
-function clean_lfp_src {
+function cleanup_lfp_src {
 	cdlfp
 	for tarball in $(find . -name '*.tar*'); do
     		dir=${tarball%.tar.*}   # removes .tar.xz, .tar.gz, .tar.bz2, etc.
@@ -195,15 +195,23 @@ function cleanup_old_kernels {
 	done
 }
 
+function cleanup_book_src {
+	sudo rm -rf /sources/*
+	mkdir /sources/archives -p
+}
+
+function cleanup_src {
+	cleanup_book_src
+	cleanup_lfp_src
+}
+
 function updc {
 	update
 	cleanup_old_libraries
 	cleanup_old_doc_dirs
-	cleanup_share_dirs
+	cleanup_old_share_dirs
 	cleanup_old_kernels
-	clean_lfp_src
-	sudo rm -rf /sources/*
-	mkdir /sources/archives -p
+	cleanup_src
 }
 
 alias updatec=updc

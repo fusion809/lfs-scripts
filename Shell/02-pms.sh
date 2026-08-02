@@ -207,11 +207,16 @@ function cleanup_src {
 
 function updc {
 	update "$@"
-	cleanup_old_libraries
-	cleanup_old_doc_dirs
-	cleanup_old_share_dirs
-	cleanup_old_kernels
-	cleanup_src
+	local broken_pkgs=$(find /var/lib/book-packages /var/lib/custom-packages -maxdepth 1 -type f ! -name ".*" 2>/dev/null | grep -vE "/(COMMIT_EDITMSG|HEAD|config|description|ORIG_HEAD)$" | while read -r f; do (head -n 1 "$f" | grep -q "^BUILD_FAILED$" || [ $(wc -l < "$f") -le 1 ]) && basename "$f"; done | tr -d '\r')
+	if [ -z "$broken_pkgs" ]; then
+		cleanup_old_doc_dirs
+		cleanup_old_kernels
+		cleanup_old_libraries
+		cleanup_old_share_dirs
+		cleanup_src
+	else
+		echo "Build failures or missing inventories detected. Skipping cleanup."
+	fi
 }
 
 alias updatec=updc

@@ -167,3 +167,15 @@ source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
 
 alias preserved-rebuild=cleanup_old_libraries_gpt
 alias preserved_rebuild=cleanup_old_libraries_gpt
+
+function updc {
+	update
+	cleanup_old_libraries
+	cleanup_old_doc_dirs
+	cleanup_share_dirs
+	clean_lfp_src
+	sudo rm -rf /sources/*
+	mkdir /sources/archives -p
+}
+
+alias updatec=updc

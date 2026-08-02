@@ -7,7 +7,7 @@ function instLfp {
 	fi
 }
 
-function cleanup_lfp_src {
+function rm_lfp_src {
 	cdlfp
 	for tarball in $(find . -name '*.tar*'); do
     		dir=${tarball%.tar.*}   # removes .tar.xz, .tar.gz, .tar.bz2, etc.
@@ -165,9 +165,9 @@ function check_version {
 
 source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
 
-alias preserved-rebuild=cleanup_old_libraries_gpt
-alias preserved_rebuild=cleanup_old_libraries_gpt
-function cleanup_old_kernels {
+alias preserved-rebuild=rm_old_libs_gpt
+alias preserved_rebuild=rm_old_libs_gpt
+function rm_old_kerns {
 	current=$(uname -r)
 	echo "Deleting kernels older than $current..."
 	find /lib/modules -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -V |
@@ -195,25 +195,25 @@ function cleanup_old_kernels {
 	done
 }
 
-function cleanup_book_src {
+function rm_book_src {
 	sudo rm -rf /sources/*
 	mkdir /sources/archives -p
 }
 
-function cleanup_src {
-	cleanup_book_src
-	cleanup_lfp_src
+function rm_src {
+	rm_book_src
+	rm_lfp_src
 }
 
 function updc {
 	update "$@"
 	local broken_pkgs=$(find /var/lib/book-packages /var/lib/custom-packages -maxdepth 1 -type f ! -name ".*" 2>/dev/null | grep -vE "/(COMMIT_EDITMSG|HEAD|config|description|ORIG_HEAD)$" | while read -r f; do (head -n 1 "$f" | grep -q "^BUILD_FAILED$" || [ $(wc -l < "$f") -le 1 ]) && basename "$f"; done | tr -d '\r')
 	if [ -z "$broken_pkgs" ]; then
-		cleanup_old_doc_dirs
-		cleanup_old_kernels
-		cleanup_old_libraries
-		cleanup_old_share_dirs
-		cleanup_src
+		rm_old_docs
+		rm_old_kerns
+		rm_old_libs
+		rm_old_share
+		rm_src
 	else
 		echo "Build failures or missing inventories detected. Skipping cleanup."
 	fi

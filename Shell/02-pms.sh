@@ -167,12 +167,39 @@ source ~/.lfs_scripts/lfs-vm-bootstrap.sh 2>/dev/null
 
 alias preserved-rebuild=cleanup_old_libraries_gpt
 alias preserved_rebuild=cleanup_old_libraries_gpt
+function cleanup_old_kernels {
+	current=$(uname -r)
+	find /lib/modules -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -V |
+	while read -r ver; do
+	    if [[ "$ver" == "$current" ]]; then
+        	break
+	    fi
+	    sudo rm -rf "/lib/modules/$ver"
+	    echo "/lib/modules/$ver was deleted"
+	done
+	find /boot -maxdepth 1 -type f \
+    \( -name "vmlinuz-*" -o \
+       -name "initramfs-*" -o \
+       -name "System.map-*" -o \
+       -name "config-*" \) |
+	while read -r file; do
+	    ver=${file##*-}
+	    ver=${ver%.img}
+
+	    if [[ "$(printf '%s\n%s\n' "$ver" "$current" | sort -V | head -n1)" == "$ver" &&
+	          "$ver" != "$current" ]]; then
+	        sudo rm -f "$file"
+	        echo "$file was deleted."
+	    fi
+	done
+}
 
 function updc {
 	update
 	cleanup_old_libraries
 	cleanup_old_doc_dirs
 	cleanup_share_dirs
+	cleanup_old_kernels
 	clean_lfp_src
 	sudo rm -rf /sources/*
 	mkdir /sources/archives -p

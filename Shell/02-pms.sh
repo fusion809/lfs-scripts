@@ -206,7 +206,7 @@ function cleanup_src {
 }
 
 function updc {
-	update
+	update "$@"
 	cleanup_old_libraries
 	cleanup_old_doc_dirs
 	cleanup_old_share_dirs

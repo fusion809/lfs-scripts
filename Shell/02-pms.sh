@@ -169,6 +169,7 @@ alias preserved-rebuild=cleanup_old_libraries_gpt
 alias preserved_rebuild=cleanup_old_libraries_gpt
 function cleanup_old_kernels {
 	current=$(uname -r)
+	echo "Deleting kernels older than $current..."
 	find /lib/modules -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -V |
 	while read -r ver; do
 	    if [[ "$ver" == "$current" ]]; then

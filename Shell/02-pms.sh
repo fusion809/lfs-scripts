@@ -216,6 +216,7 @@ function updc {
 		rm_old_libs
 		rm_old_share
 		rm_src
+		lfs_commit
 	else
 		echo "Build failures or missing inventories detected. Skipping cleanup."
 	fi

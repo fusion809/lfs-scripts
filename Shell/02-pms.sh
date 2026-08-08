@@ -186,10 +186,14 @@ function rm_old_kerns {
        -name "System.map-*" -o \
        -name "config-*" \) |
 	while read -r file; do
-	    ver=${file##*-}
-	    ver=${ver%.img}
+		if echo $file | grep "vmlinuz" &> /dev/null; then
+			ver=${file##*/vmlinuz-}
+		else
+			ver=${file##*-}
+			ver=${ver%.img}
+		fi
 
-	    if [[ "$(printf '%s\n%s\n' "$ver" "$current" | sort -V | head -n1)" == "$ver" &&
+	    if [[ "$(printf '%s\n%s\n' "$ver" "$current" | sort -V | head -n1)" == *"$ver"* &&
 	          "$ver" != "$current" ]]; then
 	        sudo rm -f "$file"
 	        echo "$file was deleted."

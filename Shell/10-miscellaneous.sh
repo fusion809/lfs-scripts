@@ -42,3 +42,4 @@ function walloptim {
 	find ~/wallpapers -type f \( -iname '*.jpg' -o -iname '*.jpeg' \) \
 		-exec jpegoptim --strip-all --all-progressive {} +
 }
+source ~/lfs_packaging/shared-funcs.sh

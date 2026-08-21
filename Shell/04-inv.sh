@@ -26,4 +26,14 @@ function inv {
 ' sh {} +
 }
 
+remove_duplicate_book_packages() {
+    for file in /var/lib/book-packages/*; do
+        [[ -f "$file" ]] || continue
 
+        name=${file##*/}
+
+        if [[ -f "/var/lib/custom-packages/$name" ]] && [[ -d "$HOME/lfs_packaging/$name" ]]; then
+            sudo rm -vf "$file"
+        fi
+    done
+}

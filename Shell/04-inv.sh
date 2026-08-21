@@ -37,3 +37,5 @@ remove_duplicate_book_packages() {
         fi
     done
 }
+
+alias rm_dup_bp=remove_duplicate_book_packages

@@ -4,7 +4,7 @@ function hash {
 }
 
 function stHash {
-	cat ~/$1_hash.log
+	cat ~/logs/$1_hash.log
 }
 
 function nopkg {
@@ -30,7 +30,7 @@ if [[ $BH != "$(stHash book)" ]] || [[ $CH != "$(stHash custom)" ]]; then
 		julia="1"
 	fi
 	total=$(($julia+$pip+$R+$BN+$CN))
-	echo "$total [ $BN (󰊢 ${BP})  $CN (󰊢 $CP)  $julia  $pip  $R]" > ~/packages_no_long.log
+	echo "$total [ $BN (󰊢 ${BP})  $CN (󰊢 $CP)  $julia  $pip  $R]" > ~/logs/packages_no_long.log
 fi
-echo "$BH" > ~/book_hash.log
-echo "$CH" > ~/custom_hash.log
+echo "$BH" > ~/logs/book_hash.log
+echo "$CH" > ~/logs/custom_hash.log

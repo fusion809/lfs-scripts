@@ -229,3 +229,92 @@ function updc {
 }
 
 alias updatec=updc
+
+function find_deps {
+    python3 -c '
+import os, sys, subprocess, re
+
+targets = sys.argv[1:]
+if not targets:
+    print("Usage: who_needs_lib <library_name_or_pattern> [lib2 ...]")
+    sys.exit(1)
+
+# 1. Map registered files (canonical realpaths) to package names
+file_to_pkg = {}
+for pdir in ["/var/lib/book-packages", "/var/lib/custom-packages"]:
+    if not os.path.isdir(pdir): continue
+    for pf in os.listdir(pdir):
+        fpath = os.path.join(pdir, pf)
+        try:
+            with open(fpath, "r", errors="ignore") as f:
+                for line in f.read().splitlines()[1:]:
+                    line = line.strip()
+                    if line:
+                        file_to_pkg[os.path.realpath(line)] = pf
+                        file_to_pkg[line] = pf
+        except: pass
+
+# 2. Gather candidates with followlinks=True (/opt/*/{lib,bin}, /usr, /lib)
+candidates = set(file_to_pkg.keys())
+for root_dir in ["/opt", "/usr/bin", "/usr/lib", "/usr/libexec", "/lib"]:
+    if not os.path.isdir(root_dir): continue
+    for root, dirs, files in os.walk(root_dir, followlinks=True):
+        for fname in files:
+            candidates.add(os.path.join(root, fname))
+
+matched_pkgs = set()
+untracked_files = []
+scanned_realpaths = set()
+
+# Compile target regexes
+target_patterns = [re.compile(re.escape(t).replace(r"\*", ".*"), re.IGNORECASE) for t in targets]
+fast_bytes = [t.encode("utf-8") for t in targets]
+
+for filepath in sorted(candidates):
+    try:
+        rpath = os.path.realpath(filepath)
+        if rpath in scanned_realpaths:
+            continue
+        scanned_realpaths.add(rpath)
+        if not os.path.isfile(rpath):
+            continue
+
+        with open(rpath, "rb") as f:
+            if f.read(4) != b"\x7fELF":
+                continue
+            f.seek(0)
+            content = f.read(4 * 1024 * 1024)
+            if not any(fb.split(b".so")[0] in content for fb in fast_bytes):
+                continue
+
+            out = subprocess.check_output(["readelf", "-d", rpath], stderr=subprocess.DEVNULL).decode("utf-8", errors="ignore")
+            for line in out.splitlines():
+                if "(NEEDED)" in line:
+                    for pat in target_patterns:
+                        if pat.search(line):
+                            soname = line.split("[")[-1].split("]")[0]
+                            pkg = file_to_pkg.get(filepath) or file_to_pkg.get(rpath)
+                            if not pkg:
+                                if "/opt/rustc" in filepath or "/opt/rustc" in rpath: pkg = "rustc"
+                                elif "/opt/qt" in filepath or "/opt/qt" in rpath: pkg = "qt6"
+                                else: pkg = "UNTRACKED"
+                            print(f"[{pkg}] {filepath} -> {soname}")
+                            if pkg != "UNTRACKED":
+                                matched_pkgs.add(pkg)
+                            else:
+                                untracked_files.append(filepath)
+                            break
+    except:
+        pass
+
+print("\n========================================")
+print(f"Packages needing {targets}:")
+print(" ".join(sorted(matched_pkgs)))
+if untracked_files:
+    print("\nUntracked files:")
+    for uf in untracked_files:
+        print(f"  - {uf}")
+print("========================================")
+' "$@"
+}
+

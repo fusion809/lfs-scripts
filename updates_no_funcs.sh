@@ -57,7 +57,7 @@ progress_status() {
     in_progress=""
 	if [[ -f $LOG_TMP ]]; then
 		in_progress="󰦕 "
-		local percent=$(awk '/Global/ { sub(/.*Global /, ""); sub(/%.*/, ""); value = $0 } END { print value }' ~/updates.log.tmp)
+		local percent=$(awk '/Global/ { sub(/.*Global /, ""); sub(/%.*/, ""); value = $0 } END { print value }' ~/logs/updates.log.tmp)
 		if ! [[ -n $percent ]]; then
 			percent="0"
 		fi

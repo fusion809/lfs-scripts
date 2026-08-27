@@ -1,5 +1,5 @@
 #!/bin/bash
-grep -E '\[(UPDATE|FILES MISSING|FAILED)\]' ~/updates.log |
+grep -E '\[(UPDATE|FILES MISSING|FAILED)\]' ~/logs/updates.log |
 awk -F'[[:space:]]*\\|[[:space:]]*' '
 {
     for (i = 1; i <= NF; i++) {

@@ -1,8 +1,8 @@
 #!/bin/bash
 source $HOME/.bashrc
-LOG="$HOME/updates.log"
-LOG_TMP="$HOME/updates.log.tmp"
-DURATION_LOG="$HOME/updates_duration.log"
+LOG="$HOME/logs/updates.log"
+LOG_TMP="$HOME/logs/updates.log.tmp"
+DURATION_LOG="$HOME/logs/updates_duration.log"
 MAX_AGE=5 # Maximum age of updates.log in minutes
 
 silent_updates() {

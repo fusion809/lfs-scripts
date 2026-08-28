@@ -197,10 +197,11 @@ function rm_old_kerns {
 	          "$ver" != "$current" ]]; then
 	        sudo rm -f "$file"
 	        echo "$file was deleted."
-		source ~/lfs-scripts/Shell/10-miscellaneous.sh
-		update-grub
 	    fi
 	done
+	source ~/lfs-scripts/Shell/10-miscellaneous.sh
+	update-grub
+
 }
 
 function rm_book_src {

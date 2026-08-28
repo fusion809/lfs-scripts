@@ -15,4 +15,4 @@ idle_delta=$((idle2-idle1))
 total_delta=$((total2-total1))
 
 awk -v idle="$idle_delta" -v total="$total_delta" \
-    'BEGIN { printf "%.2f%%\n", 100*(1-idle/total) }'
+    'BEGIN { printf "%.0f%%\n", 100*(1-idle/total) }'

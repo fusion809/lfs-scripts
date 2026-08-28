@@ -26,6 +26,10 @@ function cdi {
 	cd ~/.local/share/icons/$1
 }
 
+function cdl {
+	cd ~/logs/$1
+}
+
 function cdld {
 	cd ~/lfs_dotfiles/$1
 }

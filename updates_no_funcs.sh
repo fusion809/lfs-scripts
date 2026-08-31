@@ -65,6 +65,12 @@ progress_status() {
 	fi
 }
 
+failed_version() {
+	if [[ -f ~/logs/failed_versioning.log ]]; then
+		echo " F"
+	fi
+}
+
 print_status() {
-	echo "$in_progress $mod_time  $no_updates 󰂕 $no_missing_total  $no_failed"
+	echo "$in_progress $mod_time  $no_updates 󰂕 $no_missing_total  ${no_failed}$(failed_version)"
 }

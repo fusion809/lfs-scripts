@@ -67,7 +67,7 @@ progress_status() {
 
 failed_version() {
 	if [[ -f ~/logs/failed_versioning.log ]]; then
-		echo " F"
+		echo " F$(cat ~/logs/failed_versioning.log | cut -d ',' -f 2 | uniq | wc -l)"
 	fi
 }
 

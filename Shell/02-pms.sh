@@ -319,3 +319,12 @@ print("========================================")
 ' "$@"
 }
 
+function rm_dup_pkgs {
+	for file in /var/lib/book-packages/*; do
+        [[ -f "$file" ]] || continue
+        if [[ -f "/var/lib/custom-packages/$(basename "$file")" ]]; then
+            rm "$file"
+        fi
+    done
+}
+

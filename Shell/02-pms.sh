@@ -328,3 +328,15 @@ function rm_dup_pkgs {
     done
 }
 
+function firefox_inv {
+	sudo bash -c '
+PKG="firefox"
+VERSION=$(ls /sources/firefox* -ld | sed "s|.*/sources/||g" | cut -d "-" -f 2 | sed "s/\.source//g")
+INV="/var/lib/book-packages/${PKG}"
+
+echo "$VERSION" > "$INV"
+find /usr/bin/firefox /usr/lib/firefox /usr/share/applications/firefox.desktop /usr/share/pixmaps/firefox.png -type f -o -type l 2>/dev/null | sort -u >> "$INV"
+chmod 755 "$INV"
+'
+}
+

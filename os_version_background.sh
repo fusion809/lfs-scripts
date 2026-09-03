@@ -11,7 +11,10 @@ if [[ $(< ~/logs/os_version.log) != "$current" ]]; then
 	BLFS_VERSION=$(cat /etc/blfs-release)
 	BLFS_BASE=$(cat /etc/blfs-release | cut -d '-' -f 1)
 	BLFS_REV=$(echo $BLFS_VERSION | cut -d '-' -f 2)
-	if [[ $LFS_BASE == $BLFS_BASE ]]; then
+	if [[ $BLFS_REV == $BLFS_BASE ]]; then
+		BLFS_REV="0"
+	fi
+	if [[ ${LFS_BASE} == ${BLFS_BASE} ]]; then
 		echo "󰌽 $LFS_BASE-$LFS_REV,$BLFS_REV" > ~/logs/os_version.log
 	else
 		echo "󰌽 $LFS_BASE-$LFS_REV, $BLFS_BASE-$BLFS_REV" > ~/logs/os_version.log

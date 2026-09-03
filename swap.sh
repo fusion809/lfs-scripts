@@ -5,5 +5,5 @@ function swap {
 
 SwapFree=$(swap SwapFree)
 SwapTotal=$(swap SwapTotal)
-perc=$(R -q -e "($SwapTotal-$SwapFree)/$SwapTotal * 100" | grep "^\[1\]" | cut -d ' ' -f 2)
+perc=$(R -q -e "round(($SwapTotal-$SwapFree)/$SwapTotal * 100, 0)" | grep "^\[1\]" | cut -d ' ' -f 2)
 echo "$perc%"

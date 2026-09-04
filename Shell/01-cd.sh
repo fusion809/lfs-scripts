@@ -42,8 +42,34 @@ function cdlfa {
 	cd ~/lfs_apps/$1
 }
 
-function cdlfp {
+function cdlfp_base {
 	cd ~/lfs_packaging/$1
+}
+function cdlfp {
+	if [[ -d ~/lfs_packaging/$1 ]]; then
+		cdlfp_base $1
+	else
+		mkdir -p ~/lfs_packaging/$1
+		cdlfp_base $1
+		cat > build.sh <<EOF
+#!/bin/bash
+set -e
+name=$1
+version=
+filename="\$name-\$version.tar.gz"
+direname="\${filename/.tar.*/}"
+if ! [[ -f \$filename ]]; then
+	wget -c
+fi
+rm -rf "\$direname"
+tar xf "\$filename"
+cd "\$direname"
+rm -rf "\$filename" "\$direname"
+echo "\$version" | sudo tee "/var/lib/custom-packages/\$name"
+EOF
+		chmod +x build.sh
+		echo "build.sh created but almost empty"
+	fi
 }
 
 alias cdlp=cdlfp

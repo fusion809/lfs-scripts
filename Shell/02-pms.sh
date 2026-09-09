@@ -341,12 +341,18 @@ chmod 755 "$INV"
 }
 
 function upver {
-	local pkgname=$1
+local pkgname=$1
     local build_sh="$HOME/lfs_packaging/$pkgname/build.sh"
-    local line
 
-    line=$(grep -m1 '^version=' "$build_sh") || return 1
+    [[ -f $build_sh ]] || {
+        printf 'No build.sh found for %s\n' "$pkgname" >&2
+        return 1
+    }
 
-    eval "$line"
-    printf '%s\n' "$version"
+    (
+        source <(
+            sed -n '1,/^version=/p' "$build_sh"
+        )
+        printf '%s\n' "$version"
+    )
 }

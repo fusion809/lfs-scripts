@@ -15,22 +15,18 @@ function comno {
 	git -C /var/lib/$1-packages rev-list --branches master --count
 }
 
-BH=$(hash book);
-BN=$(nopkg book);
-BP=$(comno book);
 CH=$(hash custom);
 CN=$(nopkg custom);
 CP=$(comno custom); 
 
-if [[ $BH != "$(stHash book)" ]] || [[ $CH != "$(stHash custom)" ]]; then
+if [[ $CH != "$(stHash custom)" ]]; then
 	pip=$(pip3 list | wc -l)
 	R=$(Rscript -e 'ip <- installed.packages(); cat(ip[,1], sep="\n")' | wc -l)
 	julia=$(julia -e 'using Pkg; Pkg.status()' | wc -l)
 	if (( $julia == 0 )); then
 		julia="1"
 	fi
-	total=$(($julia+$pip+$R+$BN+$CN))
-	echo "$total [ $BN (󰊢 ${BP})  $CN (󰊢 $CP)  $julia  $pip  $R]" > ~/logs/packages_no_long.log
+	total=$(($julia+$pip+$R+$CN))
+	echo "$total [  $CN (󰊢 $CP)  $julia  $pip  $R]" > ~/logs/packages_no_long.log
 fi
-echo "$BH" > ~/logs/book_hash.log
 echo "$CH" > ~/logs/custom_hash.log

@@ -1,9 +1,14 @@
 #!/bin/bash
-source $HOME/.bashrc
 LOG="$HOME/logs/updates.log"
 LOG_TMP="$HOME/logs/updates.log.tmp"
 DURATION_LOG="$HOME/logs/updates_duration.log"
 MAX_AGE=5 # Maximum age of updates.log in minutes
+
+if ! declare -f updates >/dev/null; then
+    updates() {
+        bash "$HOME/.lfs_scripts/lfs-updates.sh" "$@"
+    }
+fi
 
 silent_updates() {
     local start_time=$(date +%s)
@@ -13,6 +18,8 @@ silent_updates() {
         local end_time=$(date +%s)
         local duration=$((end_time - start_time))
         echo "$duration" >> "$DURATION_LOG"
+    else
+        rm -f "$LOG_TMP"
     fi
     rm -f "${LOG_TMP}.start"
 }
@@ -20,7 +27,7 @@ silent_updates() {
 log_is_recent() {
     local avg_duration_rnd=0
     if [[ -s "$DURATION_LOG" ]]; then
-        avg_duration_rnd=$(R -q -e "durations <- scan(\"$DURATION_LOG\", quiet=TRUE); round(mean(durations))" 2>/dev/null | grep "^\[1\]" | cut -d ' ' -f 2 | tr -cd '0-9')
+        avg_duration_rnd=$(awk '{sum+=$1; count++} END {if (count) printf "%.0f\n", sum/count; else print 0}' "$DURATION_LOG")
         avg_duration_rnd=${avg_duration_rnd:-0}
     fi
     local threshold=$(( 300 - avg_duration_rnd ))
@@ -45,32 +52,44 @@ update_if_needed() {
 }
 
 read_log_stats() {
-    no_updates=$(grep -cF "[UPDATE]" "$LOG")
-    no_missing=$(grep -cF "[MISSING]" "$LOG")
-    no_files_missing=$(grep -cF "[FILES MISSING]" "$LOG")
-    no_missing_total=$((no_missing + no_files_missing))
-    no_failed=$(grep -cF "[FAILED]" "$LOG")
-    mod_time=$(date -d "$(stat -c %y "$LOG")" "+%I:%M:%S %p")
+    if [[ -f "$LOG" ]]; then
+        read -r no_updates no_missing no_files_missing no_failed < <(awk '
+            /\[UPDATE\]/ { u++ }
+            /\[MISSING\]/ { m++ }
+            /\[FILES MISSING\]/ { fm++ }
+            /\[FAILED\]/ { f++ }
+            END { printf "%d %d %d %d\n", u, m, fm, f }
+        ' "$LOG")
+        no_missing_total=$((no_missing + no_files_missing))
+        mod_time=$(date -d "@$(stat -c %Y "$LOG")" "+%I:%M:%S %p")
+    else
+        no_updates=0
+        no_missing_total=0
+        no_failed=0
+        mod_time="Never"
+    fi
 }
 
 progress_status() {
     in_progress=""
-	if [[ -f $LOG_TMP ]]; then
-		in_progress="󰦕 "
-		local percent=$(awk '/Global/ { sub(/.*Global /, ""); sub(/%.*/, ""); value = $0 } END { print value }' ~/logs/updates.log.tmp)
-		if ! [[ -n $percent ]]; then
-			percent="0"
-		fi
-		in_progress="󰦕 ${percent}% "
-	fi
+    if [[ -f "$LOG_TMP" ]]; then
+        in_progress="󰦕 "
+        local percent=$(awk -v RS='[\r\n]' '/Global [0-9]+%/ { match($0, /Global ([0-9]+)%/, m); val = m[1] } END { print val }' "$LOG_TMP")
+        if ! [[ -n $percent ]]; then
+            percent="0"
+        fi
+        in_progress="󰦕 ${percent}% "
+    fi
 }
 
 failed_version() {
-	if [[ -f ~/logs/failed_versioning.log ]]; then
-		echo " F$(cat ~/logs/failed_versioning.log | cut -d ',' -f 2 | uniq | wc -l)"
-	fi
+    local failed_log="$HOME/logs/failed_versioning.log"
+    if [[ -f "$failed_log" ]]; then
+        local count=$(awk -F',' '!seen[$2]++ { count++ } END { print count+0 }' "$failed_log")
+        echo " F$count"
+    fi
 }
 
 print_status() {
-	echo "$in_progress $mod_time  $no_updates 󰂕 $no_missing_total  ${no_failed}$(failed_version)"
+    echo "$in_progress $mod_time  $no_updates 󰂕 $no_missing_total  ${no_failed}$(failed_version)"
 }

@@ -1,3 +1,7 @@
+function vbs {
+	vim build.sh
+}
+
 function vrm {
 	vim README.md
 }

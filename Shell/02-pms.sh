@@ -364,8 +364,9 @@ function upver {
 function updatec_after {
 	while :;
 	do
-		if ! ps ax | grep autobuild | grep -v grep &> /dev/null; then
-			updatec ; break;
+		if ! ps ax | grep "autobuild\.sh" | grep -v grep &> /dev/null; then
+			updatec
+			break
 		fi
 	done
 }

@@ -341,18 +341,22 @@ chmod 755 "$INV"
 }
 
 function upver {
-local pkgname=$1
-    local build_sh="$HOME/lfs_packaging/$pkgname/build.sh"
+	local pkgname=$1
+	if [[ -f $HOME/lfs_packaging/$pkgname/build.sh ]]; then
+		local build_sh="$HOME/lfs_packaging/$pkgname/build.sh"
+	else
+		local build_sh="$HOME/lfs_packaging/uninstalled/$pkgname/build.sh"
+	fi
+	
+	[[ -f $build_sh ]] || {
+		printf 'No build.sh found for %s\n' "$pkgname" >&2
+		return 1
+        }
 
-    [[ -f $build_sh ]] || {
-        printf 'No build.sh found for %s\n' "$pkgname" >&2
-        return 1
-    }
-
-    (
-        source <(
-            sed -n '1,/^version=/p' "$build_sh"
-        )
-        printf '%s\n' "$version"
-    )
+	(
+		source <(
+			sed -n '1,/^version=/p' "$build_sh"
+		)
+		printf '%s\n' "$version"
+	)
 }

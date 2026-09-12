@@ -43,3 +43,7 @@ function walloptim {
 		-exec jpegoptim --strip-all --all-progressive {} +
 }
 source ~/lfs_packaging/shared-funcs.sh
+
+function lib_dir_size {
+	find /usr/lib -mindepth 1 -maxdepth 1 -type d -exec du -sh {} + | sort -h
+}

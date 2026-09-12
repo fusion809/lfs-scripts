@@ -24,12 +24,17 @@ silent_updates() {
     rm -f "${LOG_TMP}.start"
 }
 
-log_is_recent() {
+function updates_avg {
     local avg_duration_rnd=0
     if [[ -s "$DURATION_LOG" ]]; then
         avg_duration_rnd=$(awk '{sum+=$1; count++} END {if (count) printf "%.0f\n", sum/count; else print 0}' "$DURATION_LOG")
         avg_duration_rnd=${avg_duration_rnd:-0}
     fi
+    echo "$avg_duration_rnd"
+}
+
+log_is_recent() {
+    local avg_duration_rnd=$(updates_avg)
     local threshold=$(( 300 - avg_duration_rnd ))
     local log_age=$(( $(date +%s) - $(date +%s -r "$LOG") ))
     (( threshold >= log_age ))
@@ -90,6 +95,13 @@ failed_version() {
     fi
 }
 
+function updates_avg_read {
+	local time=$(updates_avg)
+	local min=$(($time / 60))
+	local sec=$(($time % 60))
+	echo "${min}m${sec}s"
+}
+
 print_status() {
-    echo "$in_progress $mod_time  $no_updates 󰂕 $no_missing_total  ${no_failed}$(failed_version)"
+	echo "$in_progress󰔚 $(updates_avg_read)  $mod_time  $no_updates 󰂕 $no_missing_total  ${no_failed}$(failed_version)"
 }

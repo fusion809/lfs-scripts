@@ -4,7 +4,7 @@ duration_dir="$HOME/build_duration"
 mkdir -p "$duration_dir"
 
 while :; do
-	pid=$(ps ax | grep "\.lfs_autobuild.sh" | grep -v grep | cut -d ' ' -f 1)
+	pid=$(ps ax | grep "\.lfs_autobuild.sh" | grep -v grep | sed 's/^\s*//g' | cut -d ' ' -f 1)
 	if ! [[ -n $pid ]]; then
 		continue;
 	fi

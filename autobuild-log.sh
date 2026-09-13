@@ -15,14 +15,9 @@ while :; do
 		while kill -0 "$pid" 2>/dev/null; do
 			current_sec=$(date +"%s")
 			diff=$(($current_sec-$start_sec))
-			if [[ $(grep -o ' ' <<< "$pkg" | wc -l) -eq 0 ]]; then
-				echo "$diff" >> $duration_dir/$pkg.tmp
-			fi
 		done
-		if [[ -f "$duration_dir/$pkg.tmp" ]]; then
-			tail -n 1 "$duration_dir/$pkg.tmp" >> "$duration_dir/$pkg"
-			rm "$duration_dir/$pkg.tmp"
+		if [[ "$diff" =~ ^[0-9]+$ ]] && [[ $(grep -o ' ' <<< "$pkg" | wc -l) -eq 0 ]]; then
+			echo "$diff" >> $duration_dir/$pkg
 		fi
-
 	done <<< $pid
 done

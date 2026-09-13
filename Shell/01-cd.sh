@@ -6,6 +6,10 @@ function cdap {
 	cd ~/.local/share/applications
 }
 
+function cdbd {
+	cd ~/build_duration/$1
+}
+
 function cdbp {
 	cd $BP/$1
 }

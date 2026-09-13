@@ -19,8 +19,10 @@ while :; do
 				echo "$diff" >> $duration_dir/$pkg.tmp
 			fi
 		done
-		tail -n 1 "$duration_dir/$pkg.tmp" >> "$duration_dir/$pkg"
-		rm "$duration_dir/$pkg.tmp"
+		if [[ -f "$duration_dir/$pkg.tmp" ]]; then
+			tail -n 1 "$duration_dir/$pkg.tmp" >> "$duration_dir/$pkg"
+			rm "$duration_dir/$pkg.tmp"
+		fi
 
 	done <<< $pid
 done

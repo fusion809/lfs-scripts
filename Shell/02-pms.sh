@@ -370,3 +370,16 @@ function updatec_after {
 		fi
 	done
 }
+
+function build_time {
+	local DURATION_LOG=$HOME/build_duration/$1
+	local avg_duration_rnd=0
+	if [[ -s "$DURATION_LOG" ]]; then
+		avg_duration_rnd=$(awk '{sum+=$1; count++} END {if (count) printf "%.0f\n", sum/count; else print 0}' "$DURATION_LOG")
+		avg_duration_rnd=${avg_duration_rnd:-0}
+	fi
+	local hours=$(($avg_duration_rnd/3600))
+	local mins=$((($avg_duration_rnd % 3600) / 60))
+	local secs=$(($avg_duration_rnd % 60))
+	echo "$1 took ${hours}h ${mins}m ${secs}s to build"
+}
